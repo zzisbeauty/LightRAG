@@ -6,24 +6,24 @@ from lightrag.llm import ollama_embedding, ollama_model_complete
 from lightrag.utils import EmbeddingFunc
 from typing import Optional
 import asyncio
-import nest_asyncio
 import aiofiles
 
 # Apply nest_asyncio to solve event loop issues
+import nest_asyncio
 nest_asyncio.apply()
 
-DEFAULT_RAG_DIR = "index_default"
 app = FastAPI(title="LightRAG API", description="API for RAG operations")
 
 DEFAULT_INPUT_FILE = "book.txt"
 INPUT_FILE = os.environ.get("INPUT_FILE", f"{DEFAULT_INPUT_FILE}")
-print(f"INPUT_FILE: {INPUT_FILE}")
+INPUT_FILE = '/home/fzm/Desktop/LightRAG/resources/mock_data.txt'
+# print(f"INPUT_FILE: {INPUT_FILE}")
 
 # Configure working directory
+DEFAULT_RAG_DIR = "index_default"
+DEFAULT_RAG_DIR = '/home/fzm/Desktop/LightRAG/index_default'
 WORKING_DIR = os.environ.get("RAG_DIR", f"{DEFAULT_RAG_DIR}")
 print(f"WORKING_DIR: {WORKING_DIR}")
-
-
 if not os.path.exists(WORKING_DIR):
     os.mkdir(WORKING_DIR)
 
@@ -31,7 +31,8 @@ if not os.path.exists(WORKING_DIR):
 rag = LightRAG(
     working_dir=WORKING_DIR,
     llm_model_func=ollama_model_complete,
-    llm_model_name="gemma2:9b",
+    # llm_model_name="gemma2:9b",
+    llm_model_name="qwen:1.8b",
     llm_model_max_async=4,
     llm_model_max_token_size=8192,
     llm_model_kwargs={"host": "http://localhost:11434", "options": {"num_ctx": 8192}},
@@ -39,7 +40,10 @@ rag = LightRAG(
         embedding_dim=768,
         max_token_size=8192,
         func=lambda texts: ollama_embedding(
-            texts, embed_model="nomic-embed-text", host="http://localhost:11434"
+            texts, 
+            # embed_model="nomic-embed-text", 
+            embed_model="bge-m3:latest", 
+            host="http://localhost:11434"
         ),
     ),
 )
@@ -145,6 +149,7 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(app, host="0.0.0.0", port=8020)
+
 
 # Usage example
 # To run the server, use the following command in your terminal:

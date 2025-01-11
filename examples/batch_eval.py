@@ -1,13 +1,11 @@
 import re
 import json
 import jsonlines
-
 from openai import OpenAI
 
 
 def batch_eval(query_file, result1_file, result2_file, output_file_path):
     client = OpenAI()
-
     with open(query_file, "r") as f:
         data = f.read()
 
@@ -88,12 +86,8 @@ def batch_eval(query_file, result1_file, result2_file, output_file_path):
             writer.write(request)
 
     print(f"Batch API requests written to {output_file_path}")
-
-    batch_input_file = client.files.create(
-        file=open(output_file_path, "rb"), purpose="batch"
-    )
+    batch_input_file = client.files.create(file=open(output_file_path, "rb"), purpose="batch")
     batch_input_file_id = batch_input_file.id
-
     batch = client.batches.create(
         input_file_id=batch_input_file_id,
         endpoint="/v1/chat/completions",

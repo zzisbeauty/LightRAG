@@ -1,20 +1,14 @@
 import os
 import asyncio
 from lightrag import LightRAG, QueryParam
-from lightrag.llm import (
-    openai_complete_if_cache,
-    nvidia_openai_embedding,
-)
+from lightrag.llm import (openai_complete_if_cache,nvidia_openai_embedding,)
 from lightrag.utils import EmbeddingFunc
 import numpy as np
 
 # for custom llm_model_func
 from lightrag.utils import locate_json_string_body_from_string
 
-WORKING_DIR = "./dickens"
-
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
+from publics import *
 
 # some method to use your API key (choose one)
 # NVIDIA_OPENAI_API_KEY = os.getenv("NVIDIA_OPENAI_API_KEY")
@@ -25,9 +19,7 @@ NVIDIA_OPENAI_API_KEY = "nvapi-xxxx"  # your api key
 
 
 # If you trying to make custom llm_model_func to use llm model on NVIDIA API like other example:
-async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
+async def llm_model_func(prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs) -> str:
     result = await openai_complete_if_cache(
         "nvidia/llama-3.1-nemotron-70b-instruct",
         prompt,

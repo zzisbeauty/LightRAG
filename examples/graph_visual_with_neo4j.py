@@ -3,19 +3,11 @@ import json
 from lightrag.utils import xml_to_json
 from neo4j import GraphDatabase
 
-# Constants
-WORKING_DIR = "./dickens"
-BATCH_SIZE_NODES = 500
-BATCH_SIZE_EDGES = 100
-
-# Neo4j connection credentials
-NEO4J_URI = "bolt://localhost:7687"
-NEO4J_USERNAME = "neo4j"
-NEO4J_PASSWORD = "your_password"
+from examples.publics import *
 
 
 def convert_xml_to_json(xml_path, output_path):
-    """Converts XML file to JSON and saves the output."""
+    """ Converts XML file to JSON and saves the output. """
     if not os.path.exists(xml_path):
         print(f"Error: File not found - {xml_path}")
         return None
@@ -32,7 +24,7 @@ def convert_xml_to_json(xml_path, output_path):
 
 
 def process_in_batches(tx, query, data, batch_size):
-    """Process data in batches and execute the given query."""
+    """ Process data in batches and execute the given query. """
     for i in range(0, len(data), batch_size):
         batch = data[i : i + batch_size]
         tx.run(query, {"nodes": batch} if "nodes" in query else {"edges": batch})
@@ -98,26 +90,17 @@ def main():
 
     # Create a Neo4j driver
     driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USERNAME, NEO4J_PASSWORD))
-
     try:
         # Execute queries in batches
         with driver.session() as session:
             # Insert nodes in batches
-            session.execute_write(
-                process_in_batches, create_nodes_query, nodes, BATCH_SIZE_NODES
-            )
-
+            session.execute_write(process_in_batches, create_nodes_query, nodes, BATCH_SIZE_NODES)
             # Insert edges in batches
-            session.execute_write(
-                process_in_batches, create_edges_query, edges, BATCH_SIZE_EDGES
-            )
-
+            session.execute_write(process_in_batches, create_edges_query, edges, BATCH_SIZE_EDGES)
             # Set displayName and labels
             session.run(set_displayname_and_labels_query)
-
     except Exception as e:
         print(f"Error occurred: {e}")
-
     finally:
         driver.close()
 

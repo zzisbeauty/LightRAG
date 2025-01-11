@@ -12,7 +12,7 @@ nano-vectordb
 neo4j
 networkx
 
-numpy
+numpy=1.26.4
 ollama
 openai
 oracledb

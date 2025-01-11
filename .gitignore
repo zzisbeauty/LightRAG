@@ -21,3 +21,6 @@ rag_storage
 venv/
 examples/input/
 examples/output/
+lightrag.log
+knowledge_graph.html
+_index_*

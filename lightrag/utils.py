@@ -57,11 +57,11 @@ class EmbeddingFunc:
 
     def __post_init__(self):
         if self.concurrent_limit != 0:
-            self._semaphore = asyncio.Semaphore(self.concurrent_limit)
+            self._semaphore = asyncio.Semaphore(self.concurrent_limit) # 限制一下并发任务数量
         else:
             self._semaphore = UnlimitedSemaphore()
 
-    async def __call__(self, *args, **kwargs) -> np.ndarray:
+    async def __call__(self, *args, **kwargs) -> np.ndarray: # 让类实例对象变为一个可调用对象，且在这个实例对象被调用的过程中，执行给定的方法
         async with self._semaphore:
             return await self.func(*args, **kwargs)
 
@@ -158,8 +158,8 @@ def write_json(json_obj, file_name):
 def encode_string_by_tiktoken(content: str, model_name: str = "gpt-4o"):
     global ENCODER
     if ENCODER is None:
-        ENCODER = tiktoken.encoding_for_model(model_name)
-    tokens = ENCODER.encode(content)
+        ENCODER = tiktoken.encoding_for_model(model_name) # o200k_base
+    tokens = ENCODER.encode(content) # token化
     return tokens
 
 

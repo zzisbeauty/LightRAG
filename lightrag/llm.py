@@ -470,29 +470,19 @@ async def lmdeploy_model_if_cache(
     Args:
         model (str): The path to the model.
             It could be one of the following options:
-                    - i) A local directory path of a turbomind model which is
-                        converted by `lmdeploy convert` command or download
-                        from ii) and iii).
-                    - ii) The model_id of a lmdeploy-quantized model hosted
-                        inside a model repo on huggingface.co, such as
-                        "InternLM/internlm-chat-20b-4bit",
-                        "lmdeploy/llama2-chat-70b-4bit", etc.
-                    - iii) The model_id of a model hosted inside a model repo
-                        on huggingface.co, such as "internlm/internlm-chat-7b",
-                        "Qwen/Qwen-7B-Chat ", "baichuan-inc/Baichuan2-7B-Chat"
-                        and so on.
-        chat_template (str): needed when model is a pytorch model on
-            huggingface.co, such as "internlm-chat-7b",
-            "Qwen-7B-Chat ", "Baichuan2-7B-Chat" and so on,
+                    - i) A local directory path of a turbomind model which is converted by `lmdeploy convert` command or download from ii) and iii).
+                    - ii) The model_id of a lmdeploy-quantized model hosted inside a model repo on huggingface.co, such as
+                        "InternLM/internlm-chat-20b-4bit",    "lmdeploy/llama2-chat-70b-4bit", etc.
+                    - iii) The model_id of a model hosted inside a model repo on huggingface.co, such as 
+                        "internlm/internlm-chat-7b",   "Qwen/Qwen-7B-Chat ",   "baichuan-inc/Baichuan2-7B-Chat" and so on.
+        chat_template (str): needed when model is a pytorch model on huggingface.co, 
+            such as "internlm-chat-7b", "Qwen-7B-Chat ", "Baichuan2-7B-Chat" and so on,
             and when the model name of local path did not match the original model name in HF.
         tp (int): tensor parallel
         prompt (Union[str, List[str]]): input texts to be completed.
-        do_preprocess (bool): whether pre-process the messages. Default to
-            True, which means chat_template will be applied.
-        skip_special_tokens (bool): Whether or not to remove special tokens
-            in the decoding. Default to be True.
-        do_sample (bool): Whether or not to use sampling, use greedy decoding otherwise.
-            Default to be False, which means greedy decoding will be applied.
+        do_preprocess (bool): whether pre-process the messages. Default to True, which means chat_template will be applied.
+        skip_special_tokens (bool): Whether or not to remove special tokens in the decoding. Default to be True.
+        do_sample (bool): Whether or not to use sampling, use greedy decoding otherwise. Default to be False, which means greedy decoding will be applied.
     """
     try:
         import lmdeploy
@@ -588,9 +578,7 @@ async def gpt_4o_complete(
     )
 
 
-async def gpt_4o_mini_complete(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
+async def gpt_4o_mini_complete(prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs) -> str:
     keyword_extraction = kwargs.pop("keyword_extraction", None)
     if keyword_extraction:
         kwargs["response_format"] = GPTKeywordExtractionFormat
@@ -765,9 +753,7 @@ async def zhipu_complete_if_cache(
     return response.choices[0].message.content
 
 
-async def zhipu_complete(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-):
+async def zhipu_complete(prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs):
     # Pop keyword_extraction from kwargs to avoid passing it to zhipu_complete_if_cache
     keyword_extraction = kwargs.pop("keyword_extraction", None)
 

@@ -1,9 +1,12 @@
 import networkx as nx
 from pyvis.network import Network
-import random
+import random, os
 
 # Load the GraphML file
-G = nx.read_graphml("./dickens/graph_chunk_entity_relation.graphml")
+
+base_path = '/home/fzm/Desktop/LightRAG/_index_hongloumeng_qwenapi'
+
+G = nx.read_graphml(os.path.join(base_path,'graph_chunk_entity_relation.graphml'))
 
 # Create a Pyvis network
 net = Network(height="100vh", notebook=True)
@@ -24,4 +27,4 @@ for edge in net.edges:
         edge["title"] = edge["description"]
 
 # Save and display the network
-net.show("knowledge_graph.html")
+net.show(os.path.join(base_path,"knowledge_graph.html"))

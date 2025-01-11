@@ -13,10 +13,7 @@ from lightrag import LightRAG, QueryParam
 from lightrag.llm import ollama_embedding, ollama_model_complete
 from lightrag.utils import EmbeddingFunc
 
-WORKING_DIR = "./dickens_gremlin"
-
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
+from publics import *
 
 # Gremlin
 os.environ["GREMLIN_HOST"] = "localhost"

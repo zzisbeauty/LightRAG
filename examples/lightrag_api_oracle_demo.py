@@ -24,20 +24,20 @@ script_directory = Path(__file__).resolve().parent.parent
 sys.path.append(os.path.abspath(script_directory))
 
 
+from publics import *
+print(f"WORKING_DIR: {WORKING_DIR}")
+
+
 # Apply nest_asyncio to solve event loop issues
 nest_asyncio.apply()
 
 DEFAULT_RAG_DIR = "index_default"
 
 
-# We use OpenAI compatible API to call LLM on Oracle Cloud
-# More docs here https://github.com/jin38324/OCI_GenAI_access_gateway
-BASE_URL = "http://xxx.xxx.xxx.xxx:8088/v1/"
+# We use OpenAI compatible API to call LLM on Oracle Cloud, More docs here https://github.com/jin38324/OCI_GenAI_access_gateway
 APIKEY = "ocigenerativeai"
+BASE_URL = "http://xxx.xxx.xxx.xxx:8088/v1/"
 
-# Configure working directory
-WORKING_DIR = os.environ.get("RAG_DIR", f"{DEFAULT_RAG_DIR}")
-print(f"WORKING_DIR: {WORKING_DIR}")
 LLM_MODEL = os.environ.get("LLM_MODEL", "cohere.command-r-plus-08-2024")
 print(f"LLM_MODEL: {LLM_MODEL}")
 EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "cohere.embed-multilingual-v3.0")
@@ -45,13 +45,10 @@ print(f"EMBEDDING_MODEL: {EMBEDDING_MODEL}")
 EMBEDDING_MAX_TOKEN_SIZE = int(os.environ.get("EMBEDDING_MAX_TOKEN_SIZE", 512))
 print(f"EMBEDDING_MAX_TOKEN_SIZE: {EMBEDDING_MAX_TOKEN_SIZE}")
 
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
 
 
-async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
+
+async def llm_model_func(prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs) -> str:
     return await openai_complete_if_cache(
         LLM_MODEL,
         prompt,
@@ -177,9 +174,7 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(
-    title="LightRAG API", description="API for RAG operations", lifespan=lifespan
-)
+app = FastAPI(title="LightRAG API", description="API for RAG operations", lifespan=lifespan)
 
 
 @app.post("/query", response_model=Response)

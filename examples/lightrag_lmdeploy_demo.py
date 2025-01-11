@@ -1,14 +1,9 @@
-import os
-
 from lightrag import LightRAG, QueryParam
 from lightrag.llm import lmdeploy_model_if_cache, hf_embedding
 from lightrag.utils import EmbeddingFunc
 from transformers import AutoModel, AutoTokenizer
 
-WORKING_DIR = "./dickens"
-
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
+from publics import *
 
 
 async def lmdeploy_model_complete(
@@ -55,7 +50,7 @@ rag = LightRAG(
 )
 
 
-with open("./book.txt", "r", encoding="utf-8") as f:
+with open(input_file, "r", encoding="utf-8") as f:
     rag.insert(f.read())
 
 # Perform naive search

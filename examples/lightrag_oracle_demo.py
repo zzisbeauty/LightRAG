@@ -12,23 +12,10 @@ print(os.getcwd())
 script_directory = Path(__file__).resolve().parent.parent
 sys.path.append(os.path.abspath(script_directory))
 
-WORKING_DIR = "./dickens"
-
-# We use OpenAI compatible API to call LLM on Oracle Cloud
-# More docs here https://github.com/jin38324/OCI_GenAI_access_gateway
-BASE_URL = "http://xxx.xxx.xxx.xxx:8088/v1/"
-APIKEY = "ocigenerativeai"
-CHATMODEL = "cohere.command-r-plus"
-EMBEDMODEL = "cohere.embed-multilingual-v3.0"
+from publics import *
 
 
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
-
-
-async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
+async def llm_model_func(prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs) -> str:
     return await openai_complete_if_cache(
         CHATMODEL,
         prompt,
@@ -41,12 +28,7 @@ async def llm_model_func(
 
 
 async def embedding_func(texts: list[str]) -> np.ndarray:
-    return await openai_embedding(
-        texts,
-        model=EMBEDMODEL,
-        api_key=APIKEY,
-        base_url=BASE_URL,
-    )
+    return await openai_embedding(texts, model=EMBEDMODEL, api_key=APIKEY, base_url=BASE_URL,)
 
 
 async def get_embedding_dim():

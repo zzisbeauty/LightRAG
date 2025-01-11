@@ -19,7 +19,7 @@ AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
 AZURE_EMBEDDING_DEPLOYMENT = os.getenv("AZURE_EMBEDDING_DEPLOYMENT")
 AZURE_EMBEDDING_API_VERSION = os.getenv("AZURE_EMBEDDING_API_VERSION")
 
-WORKING_DIR = "./dickens"
+from publics import *
 
 if os.path.exists(WORKING_DIR):
     import shutil
@@ -29,9 +29,7 @@ if os.path.exists(WORKING_DIR):
 os.mkdir(WORKING_DIR)
 
 
-async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
+async def llm_model_func(prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs) -> str:
     client = AzureOpenAI(
         api_key=AZURE_OPENAI_API_KEY,
         api_version=AZURE_OPENAI_API_VERSION,
@@ -90,8 +88,8 @@ rag = LightRAG(
     ),
 )
 
-book1 = open("./book_1.txt", encoding="utf-8")
-book2 = open("./book_2.txt", encoding="utf-8")
+book1 = open(input_file, encoding="utf-8")
+book2 = open("./book_2.txt", encoding="utf-8") # another file
 
 rag.insert([book1.read(), book2.read()])
 

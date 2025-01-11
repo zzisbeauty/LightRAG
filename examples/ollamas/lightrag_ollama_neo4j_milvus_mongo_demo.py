@@ -3,12 +3,12 @@ from lightrag import LightRAG, QueryParam
 from lightrag.llm import ollama_model_complete, ollama_embed
 from lightrag.utils import EmbeddingFunc
 
-# WorkingDir
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-WORKING_DIR = os.path.join(ROOT_DIR, "myKG")
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
+from publics import *
 print(f"WorkingDir: {WORKING_DIR}")
+
+
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 # mongo
 os.environ["MONGO_URI"] = "mongodb://root:root@localhost:27017/"
@@ -38,9 +38,7 @@ rag = LightRAG(
     embedding_func=EmbeddingFunc(
         embedding_dim=1024,
         max_token_size=8192,
-        func=lambda texts: ollama_embed(
-            texts=texts, embed_model="bge-m3:latest", host="http://127.0.0.1:11434"
-        ),
+        func=lambda texts: ollama_embed(texts=texts, embed_model="bge-m3:latest", host="http://127.0.0.1:11434"),
     ),
     kv_storage="MongoKVStorage",
     graph_storage="Neo4JStorage",
@@ -51,6 +49,4 @@ file = "./book.txt"
 with open(file, "r") as f:
     rag.insert(f.read())
 
-print(
-    rag.query("What are the top themes in this story?", param=QueryParam(mode="hybrid"))
-)
+print(rag.query("What are the top themes in this story?", param=QueryParam(mode="hybrid")))

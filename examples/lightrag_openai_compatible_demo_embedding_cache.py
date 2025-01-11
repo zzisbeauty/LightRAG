@@ -1,19 +1,14 @@
-import os
 import asyncio
 from lightrag import LightRAG, QueryParam
 from lightrag.llm import openai_complete_if_cache, openai_embedding
 from lightrag.utils import EmbeddingFunc
 import numpy as np
 
-WORKING_DIR = "./dickens"
 
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
+from publics import *
 
 
-async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
+async def llm_model_func(prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs) -> str:
     return await openai_complete_if_cache(
         "solar-mini",
         prompt,
@@ -45,7 +40,6 @@ async def get_embedding_dim():
 async def test_funcs():
     result = await llm_model_func("How are you?")
     print("llm_model_func: ", result)
-
     result = await embedding_func(["How are you?"])
     print("embedding_func: ", result)
 
@@ -57,7 +51,6 @@ async def main():
     try:
         embedding_dimension = await get_embedding_dim()
         print(f"Detected embedding dimension: {embedding_dimension}")
-
         rag = LightRAG(
             working_dir=WORKING_DIR,
             embedding_cache_config={
@@ -77,16 +70,12 @@ async def main():
 
         # Perform naive search
         print(
-            await rag.aquery(
-                "What are the top themes in this story?", param=QueryParam(mode="naive")
-            )
+            await rag.aquery("What are the top themes in this story?", param=QueryParam(mode="naive"))
         )
 
         # Perform local search
         print(
-            await rag.aquery(
-                "What are the top themes in this story?", param=QueryParam(mode="local")
-            )
+            await rag.aquery("What are the top themes in this story?", param=QueryParam(mode="local"))
         )
 
         # Perform global search

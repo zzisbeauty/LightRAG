@@ -14,7 +14,7 @@ from lightrag.utils import EmbeddingFunc
 
 import nest_asyncio
 
-WORKING_DIR = "./dickens"
+WORKING_DIR = "./index_hongloumeng"
 
 logging.basicConfig(format="%(levelname)s:%(message)s", level=logging.INFO)
 
@@ -24,20 +24,18 @@ if not os.path.exists(WORKING_DIR):
 rag = LightRAG(
     working_dir=WORKING_DIR,
     llm_model_func=ollama_model_complete,
-    llm_model_name="qwen2.5:latest",
+    llm_model_name="qwen:1.8b",
     llm_model_max_async=4,
     llm_model_max_token_size=32768,
     llm_model_kwargs={"host": "http://localhost:11434", "options": {"num_ctx": 32768}},
     embedding_func=EmbeddingFunc(
         embedding_dim=1024,
         max_token_size=8192,
-        func=lambda texts: ollama_embed(
-            texts=texts, embed_model="bge-m3:latest", host="http://127.0.0.1:11434"
-        ),
+        func=lambda texts: ollama_embed(texts=texts, embed_model="bge-m3:latest", host="http://localhost:11434"),
     ),
 )
 
-with open("./book.txt", "r", encoding="utf-8") as f:
+with open("/home/fzm/Desktop/LightRAG/resources/红楼梦.txt", "r", encoding="utf-8") as f:
     rag.insert(f.read())
 
 # Apply nest_asyncio to solve event loop issues
@@ -81,17 +79,17 @@ async def ollama_tags():
             {
                 "name": MODEL_NAME,
                 "model": MODEL_NAME,
-                "modified_at": "2024-11-12T20:22:37.561463923+08:00",
-                "size": 4683087332,
-                "digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
-                "details": {
-                    "parent_model": "",
-                    "format": "gguf",
-                    "family": "qwen2",
-                    "families": ["qwen2"],
-                    "parameter_size": "7.6B",
-                    "quantization_level": "Q4_K_M",
-                },
+                # "modified_at": "2024-11-12T20:22:37.561463923+08:00",
+                # "size": 4683087332,
+                # "digest": "845dbda0ea48ed749caafd9e6037047aa19acfcfd82e704d7ca97d631a0b697e",
+                # "details": {
+                #     "parent_model": "",
+                #     "format": "gguf",
+                #     "family": "qwen",
+                #     "families": ["qwen"],
+                #     "parameter_size": "1.8B",
+                #     "quantization_level": "Q4_K_M",
+                # },
             }
         ]
     }

@@ -1,26 +1,17 @@
-import os
 import asyncio
 from lightrag import LightRAG, QueryParam
 from lightrag.llm import gpt_4o_mini_complete, openai_embedding
 from lightrag.utils import EmbeddingFunc
 import numpy as np
 
-#########
-# Uncomment the below two lines if running in a jupyter notebook to handle the async nature of rag.insert()
-# import nest_asyncio
-# nest_asyncio.apply()
-#########
-WORKING_DIR = "./chromadb_test_dir"
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
+from examples.publics import *
+
 
 # ChromaDB Configuration
 CHROMADB_HOST = os.environ.get("CHROMADB_HOST", "localhost")
 CHROMADB_PORT = int(os.environ.get("CHROMADB_PORT", 8000))
 CHROMADB_AUTH_TOKEN = os.environ.get("CHROMADB_AUTH_TOKEN", "secret-token")
-CHROMADB_AUTH_PROVIDER = os.environ.get(
-    "CHROMADB_AUTH_PROVIDER", "chromadb.auth.token_authn.TokenAuthClientProvider"
-)
+CHROMADB_AUTH_PROVIDER = os.environ.get("CHROMADB_AUTH_PROVIDER", "chromadb.auth.token_authn.TokenAuthClientProvider")
 CHROMADB_AUTH_HEADER = os.environ.get("CHROMADB_AUTH_HEADER", "X-Chroma-Token")
 
 # Embedding Configuration and Functions

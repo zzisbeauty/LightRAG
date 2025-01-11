@@ -14,6 +14,7 @@ if not os.path.exists(WORKING_DIR):
 print(f"WorkingDir: {WORKING_DIR}")
 
 api_key = "empty"
+
 rag = LightRAG(
     working_dir=WORKING_DIR,
     llm_model_func=openai_complete,

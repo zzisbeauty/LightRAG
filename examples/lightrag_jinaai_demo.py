@@ -2,7 +2,7 @@ import numpy as np
 from lightrag import LightRAG, QueryParam
 from lightrag.utils import EmbeddingFunc
 from lightrag.llm import jina_embedding, openai_complete_if_cache
-import os
+
 import asyncio
 
 
@@ -10,15 +10,9 @@ async def embedding_func(texts: list[str]) -> np.ndarray:
     return await jina_embedding(texts, api_key="YourJinaAPIKey")
 
 
-WORKING_DIR = "./dickens"
+from publics import *
 
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
-
-
-async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], **kwargs
-) -> str:
+async def llm_model_func(prompt, system_prompt=None, history_messages=[], **kwargs) -> str:
     return await openai_complete_if_cache(
         "solar-mini",
         prompt,
@@ -33,9 +27,7 @@ async def llm_model_func(
 rag = LightRAG(
     working_dir=WORKING_DIR,
     llm_model_func=llm_model_func,
-    embedding_func=EmbeddingFunc(
-        embedding_dim=1024, max_token_size=8192, func=embedding_func
-    ),
+    embedding_func=EmbeddingFunc(embedding_dim=1024, max_token_size=8192, func=embedding_func),
 )
 
 

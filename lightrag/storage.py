@@ -149,7 +149,7 @@ class NanoVectorDBStorage(BaseVectorStorage):
         if len(embeddings) == len(list_data):
             for i, d in enumerate(list_data):
                 d["__vector__"] = embeddings[i]
-            results = self._client.upsert(datas=list_data)
+            results = self._client.upsert(datas=list_data) # insert data 2 db
             return results
         else:
             # sometimes the embedding is not returned correctly. just log it.

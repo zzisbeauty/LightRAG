@@ -5,34 +5,26 @@ from lightrag.llm import openai_complete_if_cache, openai_embedding
 from lightrag.utils import EmbeddingFunc
 import numpy as np
 
-WORKING_DIR = "./dickens"
+from publics import *
 
-if not os.path.exists(WORKING_DIR):
-    os.mkdir(WORKING_DIR)
-
-
-async def llm_model_func(
-    prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs
-) -> str:
+async def llm_model_func(prompt, system_prompt=None, history_messages=[], keyword_extraction=False, **kwargs) -> str:
     return await openai_complete_if_cache(
-        "solar-mini",
+        "qwen-plus",
         prompt,
         system_prompt=system_prompt,
         history_messages=history_messages,
         api_key=os.getenv("UPSTAGE_API_KEY"),
-        base_url="https://api.upstage.ai/v1/solar",
+        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
         **kwargs,
     )
-
 
 async def embedding_func(texts: list[str]) -> np.ndarray:
     return await openai_embedding(
         texts,
-        model="solar-embedding-1-large-query",
+        model="text-embedding-v1",
         api_key=os.getenv("UPSTAGE_API_KEY"),
-        base_url="https://api.upstage.ai/v1/solar",
+        base_url="https://dashscope.aliyuncs.com/compatible-mode/v1",
     )
-
 
 async def get_embedding_dim():
     test_text = ["This is a test sentence."]
@@ -61,42 +53,65 @@ async def main():
         rag = LightRAG(
             working_dir=WORKING_DIR,
             llm_model_func=llm_model_func,
-            embedding_func=EmbeddingFunc(
-                embedding_dim=embedding_dimension,
-                max_token_size=8192,
-                func=embedding_func,
-            ),
+            embedding_func=EmbeddingFunc(embedding_dim=embedding_dimension,max_token_size=8192,func=embedding_func,),
         )
 
-        with open("./book.txt", "r", encoding="utf-8") as f:
+        rag.addon_params['entity_types'] = ['人物','时间','地点','事件','组织','角色','概念']
+
+        with open(input_file, "r", encoding="utf-8") as f:
             await rag.ainsert(f.read())
 
-        # Perform naive search
+        print("Perform naive search ... ...")
         print(
             await rag.aquery(
-                "What are the top themes in this story?", param=QueryParam(mode="naive")
+                # "What are the top themes in this story?", param=QueryParam(mode="naive")
+                "贾宝玉和林黛玉是什么关系？", param=QueryParam(mode="naive")
             )
         )
+
+        print()
+        print()
+        print()
+        print()
+        print()
 
         # Perform local search
+        print("Perform local search ... ...")
         print(
             await rag.aquery(
-                "What are the top themes in this story?", param=QueryParam(mode="local")
+                # "What are the top themes in this story?", param=QueryParam(mode="local")
+                "贾宝玉和林黛玉是什么关系?", param=QueryParam(mode="local")
             )
         )
 
+        print()
+        print()
+        print()
+        print()
+        print()
+
         # Perform global search
+        print("Perform global search ... ...")
         print(
             await rag.aquery(
-                "What are the top themes in this story?",
+                # "What are the top themes in this story?",
+                "贾宝玉和林黛玉是什么关系?",
                 param=QueryParam(mode="global"),
             )
         )
 
+        print()
+        print()
+        print()
+        print()
+        print()
+        
         # Perform hybrid search
+        print("Perform hybrid search ... ...")
         print(
             await rag.aquery(
-                "What are the top themes in this story?",
+                # "What are the top themes in this story?",
+                "贾宝玉和林黛玉是什么关系?",
                 param=QueryParam(mode="hybrid"),
             )
         )
