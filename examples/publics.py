@@ -1,9 +1,9 @@
-# ORACLE settings
 # We use OpenAI compatible API to call LLM on Oracle Cloud ，More docs here https://github.com/jin38324/OCI_GenAI_access_gateway
-APIKEY = "ocigenerativeai"
-BASE_URL = "http://xxx.xxx.xxx.xxx:8088/v1/"
-CHATMODEL = "cohere.command-r-plus"
-EMBEDMODEL = "cohere.embed-multilingual-v3.0"
+
+# APIKEY = "ocigenerativeai"
+# BASE_URL = "http://xxx.xxx.xxx.xxx:8088/v1/"
+# CHATMODEL = "cohere.command-r-plus"
+# EMBEDMODEL = "cohere.embed-multilingual-v3.0"
 
 
 import os
