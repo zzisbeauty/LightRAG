@@ -167,9 +167,7 @@ def get_combined_auth_dependency(api_key: Optional[str] = None):
 
 
 def display_splash_screen(args: argparse.Namespace) -> None:
-    """
-    Display a colorful splash screen showing LightRAG server configuration
-
+    """ Display a colorful splash screen showing LightRAG server configuration
     Args:
         args: Parsed command line arguments
     """
@@ -275,9 +273,7 @@ def display_splash_screen(args: argparse.Namespace) -> None:
     ASCIIColors.white("    ├─ Top-K: ", end="")
     ASCIIColors.yellow(f"{args.top_k}")
     ASCIIColors.white("    └─ Force LLM Summary on Merge: ", end="")
-    ASCIIColors.yellow(
-        f"{get_env_value('FORCE_LLM_SUMMARY_ON_MERGE', DEFAULT_FORCE_LLM_SUMMARY_ON_MERGE, int)}"
-    )
+    ASCIIColors.yellow(f"{get_env_value('FORCE_LLM_SUMMARY_ON_MERGE', DEFAULT_FORCE_LLM_SUMMARY_ON_MERGE, int)}")
 
     # System Configuration
     ASCIIColors.magenta("\n💾 Storage Configuration:")
@@ -329,14 +325,10 @@ def display_splash_screen(args: argparse.Namespace) -> None:
     # Security Notice
     if args.key:
         ASCIIColors.yellow("\n⚠️  Security Notice:")
-        ASCIIColors.white("""    API Key authentication is enabled.
-    Make sure to include the X-API-Key header in all your requests.
-    """)
+        ASCIIColors.white("""    API Key authentication is enabled.Make sure to include the X-API-Key header in all your requests.""")
     if args.auth_accounts:
         ASCIIColors.yellow("\n⚠️  Security Notice:")
-        ASCIIColors.white("""    JWT authentication is enabled.
-    Make sure to login before making the request, and include the 'Authorization' in the header.
-    """)
+        ASCIIColors.white("""    JWT authentication is enabled. Make sure to login before making the request, and include the 'Authorization' in the header.""")
 
     # Ensure splash output flush to system log
     sys.stdout.flush()

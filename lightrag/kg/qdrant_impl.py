@@ -25,8 +25,8 @@ ENTITY_PREFIX = "ent-"
 CREATED_AT_FIELD = "created_at"
 ID_FIELD = "id"
 
-config = configparser.ConfigParser()
-config.read("config.ini", "utf-8")
+# config = configparser.ConfigParser()
+# config.read("config.ini", "utf-8")
 
 
 def compute_mdhash_id_for_qdrant(
@@ -324,19 +324,18 @@ class QdrantVectorDBStorage(BaseVectorStorage):
             try:
                 # Create QdrantClient if not already created
                 if self._client is None:
-                    self._client = QdrantClient(
-                        url=os.environ.get(
-                            "QDRANT_URL", config.get("qdrant", "uri", fallback=None)
-                        ),
-                        api_key=os.environ.get(
-                            "QDRANT_API_KEY",
-                            config.get("qdrant", "apikey", fallback=None),
-                        ),
+                    # self._client = QdrantClient(
+                    #     url=os.environ.get("QDRANT_URL", config.get("qdrant", "uri", fallback=None)),
+                    #     api_key=os.environ.get("QDRANT_API_KEY", config.get("qdrant", "apikey", fallback=None),),
+                    # )
+                    
+                    self._client = QdrantClient(  
+                        url=os.environ.get("QDRANT_URL", None),  # 移除 config.get() fallback  
+                        api_key=os.environ.get("QDRANT_API_KEY", None),  # 移除 config.get() fallback  
                     )
-                    logger.debug(
-                        f"[{self.workspace}] QdrantClient created successfully"
-                    )
-
+                    
+                    logger.debug(f"[{self.workspace}] QdrantClient created successfully")
+                    
                 # Setup collection (create if not exists and configure indexes)
                 # Pass legacy_namespace and workspace for migration support
                 QdrantVectorDBStorage.setup_collection(
@@ -353,15 +352,10 @@ class QdrantVectorDBStorage(BaseVectorStorage):
                         m=0,
                     ),
                 )
-
                 self._initialized = True
-                logger.info(
-                    f"[{self.workspace}] Qdrant collection '{self.namespace}' initialized successfully"
-                )
+                logger.info(f"[{self.workspace}] Qdrant collection '{self.namespace}' initialized successfully")
             except Exception as e:
-                logger.error(
-                    f"[{self.workspace}] Failed to initialize Qdrant collection '{self.namespace}': {e}"
-                )
+                logger.error(f"[{self.workspace}] Failed to initialize Qdrant collection '{self.namespace}': {e}")
                 raise
 
     async def upsert(self, data: dict[str, dict[str, Any]]) -> None:

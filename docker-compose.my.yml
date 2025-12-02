@@ -1,0 +1,65 @@
+# # 此配置启动的服务，容器中会直接运行服务 pid = 1； 关闭这个服务，容器也随之停止
+# version: '3.8'  
+  
+# services:  
+#   lightrag:  
+#     container_name: lightrag-server  
+#     build:  
+#       context: /home/nvidia/Desktop/LightRAG  
+#       dockerfile: Dockerfile
+#       args:  
+#         HTTP_PROXY: http://172.17.0.1:7890  
+#         HTTPS_PROXY: http://172.17.0.1:7890  
+#     ports:  
+#       - "9621:9621"  
+#     volumes:  
+#       - /home/nvidia/Desktop/cachedatas/lightrag:/app/data  
+#       - /home/nvidia/Desktop/LightRAG:/app/LightRAG
+#       # - ./.env:/app/.env
+#     env_file:  
+#       - .env  
+#     environment:  
+#       - HOST=0.0.0.0  
+#       - PORT=9621  
+#     restart: "no"  
+#     extra_hosts:  
+#       - "host.docker.internal:host-gateway"
+
+# 这种方式启动的容器，下面命令自动执行
+# - lightrag-server
+# - lightrag-server --workers 4
+# - server http://localhost:9621
+
+
+
+# 仅启动容器，容器启动后，需要手动启动服务
+version: '3.8'  
+  
+services:  
+  lightrag:  
+    container_name: lightrag-server  
+    build:  
+      context: /home/nvidia/Desktop/LightRAG  
+      dockerfile: Dockerfile  
+      args:  
+        HTTP_PROXY: http://172.17.0.1:7890  
+        HTTPS_PROXY: http://172.17.0.1:7890  
+    ports:  
+      - "9621:9621"  
+    volumes:  
+      - /home/nvidia/Desktop/cachedatas/lightrag:/app/data  
+      - /home/nvidia/Desktop/LightRAG:/app/LightRAG  
+    env_file:  
+      - .env  
+    environment:  
+      - HOST=0.0.0.0  
+      - PORT=9621  
+    restart: "no"  
+    extra_hosts:  
+      - "host.docker.internal:host-gateway"  
+    # 覆盖ENTRYPOINT，让容器保持运行  
+    entrypoint: ["sleep", "infinity"]  
+    command: []
+
+# 需要手动执行代码启动服务，没有任何服务
+# 命令行启动，记录在 _study_logs/bm-dev-0.0.1-day251129-startserver.md 中

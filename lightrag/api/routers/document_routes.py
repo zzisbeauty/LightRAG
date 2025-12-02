@@ -1638,31 +1638,25 @@ async def pipeline_enqueue_file(
                 logger.error(f"Error deleting file {file_path}: {str(e)}")
 
 
+# 这是处理 doc 的 pipeline
 async def pipeline_index_file(rag: LightRAG, file_path: Path, track_id: str = None):
-    """Index a file with track_id
-
+    """ Index a file with track_id
     Args:
         rag: LightRAG instance
         file_path: Path to the saved file
         track_id: Optional tracking ID
     """
     try:
-        success, returned_track_id = await pipeline_enqueue_file(
-            rag, file_path, track_id
-        )
+        success, returned_track_id = await pipeline_enqueue_file(rag, file_path, track_id)
         if success:
             await rag.apipeline_process_enqueue_documents()
-
     except Exception as e:
         logger.error(f"Error indexing file {file_path.name}: {str(e)}")
         logger.error(traceback.format_exc())
 
 
-async def pipeline_index_files(
-    rag: LightRAG, file_paths: List[Path], track_id: str = None
-):
-    """Index multiple files sequentially to avoid high CPU load
-
+async def pipeline_index_files(rag: LightRAG, file_paths: List[Path], track_id: str = None):
+    """ Index multiple files sequentially to avoid high CPU load
     Args:
         rag: LightRAG instance
         file_paths: Paths to the files to index
@@ -1674,9 +1668,7 @@ async def pipeline_index_files(
         enqueued = False
 
         # Use get_pinyin_sort_key for Chinese pinyin sorting
-        sorted_file_paths = sorted(
-            file_paths, key=lambda p: get_pinyin_sort_key(str(p))
-        )
+        sorted_file_paths = sorted(file_paths, key=lambda p: get_pinyin_sort_key(str(p)))
 
         # Process files sequentially with track_id
         for file_path in sorted_file_paths:
@@ -1698,8 +1690,7 @@ async def pipeline_index_texts(
     file_sources: List[str] = None,
     track_id: str = None,
 ):
-    """Index a list of texts with track_id
-
+    """ Index a list of texts with track_id
     Args:
         rag: LightRAG instance
         texts: The texts to index
@@ -1710,21 +1701,13 @@ async def pipeline_index_texts(
         return
     if file_sources is not None:
         if len(file_sources) != 0 and len(file_sources) != len(texts):
-            [
-                file_sources.append("unknown_source")
-                for _ in range(len(file_sources), len(texts))
-            ]
-    await rag.apipeline_enqueue_documents(
-        input=texts, file_paths=file_sources, track_id=track_id
-    )
+            [file_sources.append("unknown_source") for _ in range(len(file_sources), len(texts))]
+    await rag.apipeline_enqueue_documents(input=texts, file_paths=file_sources, track_id=track_id)
     await rag.apipeline_process_enqueue_documents()
 
 
-async def run_scanning_process(
-    rag: LightRAG, doc_manager: DocumentManager, track_id: str = None
-):
-    """Background task to scan and index documents
-
+async def run_scanning_process(rag: LightRAG, doc_manager: DocumentManager, track_id: str = None):
+    """ Background task to scan and index documents
     Args:
         rag: LightRAG instance
         doc_manager: DocumentManager instance
@@ -1756,22 +1739,14 @@ async def run_scanning_process(
             if valid_files:
                 await pipeline_index_files(rag, valid_files, track_id)
                 if processed_files:
-                    logger.info(
-                        f"Scanning process completed: {len(valid_files)} files Processed {len(processed_files)} skipped."
-                    )
+                    logger.info(f"Scanning process completed: {len(valid_files)} files Processed {len(processed_files)} skipped.")
                 else:
-                    logger.info(
-                        f"Scanning process completed: {len(valid_files)} files Processed."
-                    )
+                    logger.info(f"Scanning process completed: {len(valid_files)} files Processed.")
             else:
-                logger.info(
-                    "No files to process after filtering already processed files."
-                )
+                logger.info("No files to process after filtering already processed files.")
         else:
             # No new files to index, check if there are any documents in the queue
-            logger.info(
-                "No upload file found, check if there are any documents in the queue..."
-            )
+            logger.info("No upload file found, check if there are any documents in the queue...")
             await rag.apipeline_process_enqueue_documents()
 
     except Exception as e:
@@ -1787,17 +1762,9 @@ async def background_delete_documents(
     delete_llm_cache: bool = False,
 ):
     """Background task to delete multiple documents"""
-    from lightrag.kg.shared_storage import (
-        get_namespace_data,
-        get_namespace_lock,
-    )
-
-    pipeline_status = await get_namespace_data(
-        "pipeline_status", workspace=rag.workspace
-    )
-    pipeline_status_lock = get_namespace_lock(
-        "pipeline_status", workspace=rag.workspace
-    )
+    from lightrag.kg.shared_storage import (get_namespace_data, get_namespace_lock,)
+    pipeline_status = await get_namespace_data("pipeline_status", workspace=rag.workspace)
+    pipeline_status_lock = get_namespace_lock("pipeline_status", workspace=rag.workspace)
 
     total_docs = len(doc_ids)
     successful_deletions = []
@@ -1825,9 +1792,7 @@ async def background_delete_documents(
         # Use slice assignment to clear the list in place
         pipeline_status["history_messages"][:] = ["Starting document deletion process"]
         if delete_llm_cache:
-            pipeline_status["history_messages"].append(
-                "LLM cache cleanup requested for this deletion job"
-            )
+            pipeline_status["history_messages"].append("LLM cache cleanup requested for this deletion job")
 
     try:
         # Loop through each document ID and delete them one by one
@@ -1840,9 +1805,7 @@ async def background_delete_documents(
                     pipeline_status["latest_message"] = cancel_msg
                     pipeline_status["history_messages"].append(cancel_msg)
                     # Add remaining documents to failed list with cancellation reason
-                    failed_deletions.extend(
-                        doc_ids[i - 1 :]
-                    )  # i-1 because enumerate starts at 1
+                    failed_deletions.extend(doc_ids[i - 1 :])  # i-1 because enumerate starts at 1
                     break  # Exit the loop, remaining documents unchanged
 
                 start_msg = f"Deleting document {i}/{total_docs}: {doc_id}"
@@ -1853,17 +1816,13 @@ async def background_delete_documents(
 
             file_path = "#"
             try:
-                result = await rag.adelete_by_doc_id(
-                    doc_id, delete_llm_cache=delete_llm_cache
-                )
+                result = await rag.adelete_by_doc_id(doc_id, delete_llm_cache=delete_llm_cache)
                 file_path = (
                     getattr(result, "file_path", "-") if "result" in locals() else "-"
                 )
                 if result.status == "success":
                     successful_deletions.append(doc_id)
-                    success_msg = (
-                        f"Document deleted {i}/{total_docs}: {doc_id}[{file_path}]"
-                    )
+                    success_msg = (f"Document deleted {i}/{total_docs}: {doc_id}[{file_path}]")
                     logger.info(success_msg)
                     async with pipeline_status_lock:
                         pipeline_status["history_messages"].append(success_msg)
@@ -1877,9 +1836,7 @@ async def background_delete_documents(
                         try:
                             deleted_files = []
                             # SECURITY FIX: Use secure path validation to prevent arbitrary file deletion
-                            safe_file_path = validate_file_path_security(
-                                result.file_path, doc_manager.input_dir
-                            )
+                            safe_file_path = validate_file_path_security(result.file_path, doc_manager.input_dir)
 
                             if safe_file_path is None:
                                 # Security violation detected - log and skip file deletion
@@ -1887,9 +1844,7 @@ async def background_delete_documents(
                                 logger.warning(security_msg)
                                 async with pipeline_status_lock:
                                     pipeline_status["latest_message"] = security_msg
-                                    pipeline_status["history_messages"].append(
-                                        security_msg
-                                    )
+                                    pipeline_status["history_messages"].append(security_msg)
                             else:
                                 # check and delete files from input_dir directory
                                 if safe_file_path.exists():
@@ -1899,22 +1854,14 @@ async def background_delete_documents(
                                         file_delete_msg = f"Successfully deleted input_dir file: {result.file_path}"
                                         logger.info(file_delete_msg)
                                         async with pipeline_status_lock:
-                                            pipeline_status["latest_message"] = (
-                                                file_delete_msg
-                                            )
-                                            pipeline_status["history_messages"].append(
-                                                file_delete_msg
-                                            )
+                                            pipeline_status["latest_message"] = (file_delete_msg)
+                                            pipeline_status["history_messages"].append(file_delete_msg)
                                     except Exception as file_error:
                                         file_error_msg = f"Failed to delete input_dir file {result.file_path}: {str(file_error)}"
                                         logger.debug(file_error_msg)
                                         async with pipeline_status_lock:
-                                            pipeline_status["latest_message"] = (
-                                                file_error_msg
-                                            )
-                                            pipeline_status["history_messages"].append(
-                                                file_error_msg
-                                            )
+                                            pipeline_status["latest_message"] = (file_error_msg)
+                                            pipeline_status["history_messages"].append(file_error_msg)
 
                                 # Also check and delete files from __enqueued__ directory
                                 enqueued_dir = doc_manager.input_dir / "__enqueued__"
@@ -1925,32 +1872,20 @@ async def background_delete_documents(
                                     extension = Path(result.file_path).suffix
 
                                     # Search for exact match and files with numeric suffixes
-                                    for enqueued_file in enqueued_dir.glob(
-                                        f"{base_name}*{extension}"
-                                    ):
+                                    for enqueued_file in enqueued_dir.glob(f"{base_name}*{extension}"):
                                         # Additional security check: ensure enqueued file is within enqueued directory
-                                        safe_enqueued_path = (
-                                            validate_file_path_security(
-                                                enqueued_file.name, enqueued_dir
-                                            )
-                                        )
+                                        safe_enqueued_path = (validate_file_path_security(enqueued_file.name, enqueued_dir))
                                         if safe_enqueued_path is not None:
                                             try:
                                                 enqueued_file.unlink()
                                                 deleted_files.append(enqueued_file.name)
-                                                logger.info(
-                                                    f"Successfully deleted enqueued file: {enqueued_file.name}"
-                                                )
+                                                logger.info(f"Successfully deleted enqueued file: {enqueued_file.name}")
                                             except Exception as enqueued_error:
                                                 file_error_msg = f"Failed to delete enqueued file {enqueued_file.name}: {str(enqueued_error)}"
                                                 logger.debug(file_error_msg)
                                                 async with pipeline_status_lock:
-                                                    pipeline_status[
-                                                        "latest_message"
-                                                    ] = file_error_msg
-                                                    pipeline_status[
-                                                        "history_messages"
-                                                    ].append(file_error_msg)
+                                                    pipeline_status["latest_message"] = file_error_msg
+                                                    pipeline_status["history_messages"].append(file_error_msg)
                                         else:
                                             security_msg = f"Security violation: Unsafe enqueued file path detected - {enqueued_file.name}"
                                             logger.warning(security_msg)
@@ -1960,22 +1895,16 @@ async def background_delete_documents(
                                 logger.warning(file_error_msg)
                                 async with pipeline_status_lock:
                                     pipeline_status["latest_message"] = file_error_msg
-                                    pipeline_status["history_messages"].append(
-                                        file_error_msg
-                                    )
+                                    pipeline_status["history_messages"].append(file_error_msg)
 
                         except Exception as file_error:
                             file_error_msg = f"Failed to delete file {result.file_path}: {str(file_error)}"
                             logger.error(file_error_msg)
                             async with pipeline_status_lock:
                                 pipeline_status["latest_message"] = file_error_msg
-                                pipeline_status["history_messages"].append(
-                                    file_error_msg
-                                )
+                                pipeline_status["history_messages"].append(file_error_msg)
                     elif delete_file:
-                        no_file_msg = (
-                            f"File deletion skipped, missing file path: {doc_id}"
-                        )
+                        no_file_msg = (f"File deletion skipped, missing file path: {doc_id}")
                         logger.warning(no_file_msg)
                         async with pipeline_status_lock:
                             pipeline_status["latest_message"] = no_file_msg
@@ -2035,9 +1964,7 @@ def create_document_routes(
     # Create combined auth dependency for document routes
     combined_auth = get_combined_auth_dependency(api_key)
 
-    @router.post(
-        "/scan", response_model=ScanResponse, dependencies=[Depends(combined_auth)]
-    )
+    @router.post("/scan", response_model=ScanResponse, dependencies=[Depends(combined_auth)])
     async def scan_for_new_documents(background_tasks: BackgroundTasks):
         """
         Trigger the scanning process for new documents.
@@ -2556,17 +2483,13 @@ def create_document_routes(
             raise HTTPException(status_code=500, detail=str(e))
 
     # TODO: Deprecated, use /documents/paginated instead
-    @router.get(
-        "", response_model=DocsStatusesResponse, dependencies=[Depends(combined_auth)]
-    )
+    @router.get("", response_model=DocsStatusesResponse, dependencies=[Depends(combined_auth)])
     async def documents() -> DocsStatusesResponse:
-        """
-        Get the status of all documents in the system. This endpoint is deprecated; use /documents/paginated instead.
-        To prevent excessive resource consumption, a maximum of 1,000 records is returned.
+        """ Get the status of all documents in the system. This endpoint is deprecated; use /documents/paginated instead.
+            To prevent excessive resource consumption, a maximum of 1,000 records is returned.
 
         This endpoint retrieves the current status of all documents, grouped by their
-        processing status (PENDING, PROCESSING, PREPROCESSED, PROCESSED, FAILED). The results are
-        limited to 1000 total documents with fair distribution across all statuses.
+        processing status (PENDING, PROCESSING, PREPROCESSED, PROCESSED, FAILED). The results are limited to 1000 total documents with fair distribution across all statuses.
 
         Returns:
             DocsStatusesResponse: A response object containing a dictionary where keys are
@@ -3040,30 +2963,20 @@ def create_document_routes(
             logger.error(traceback.format_exc())
             raise HTTPException(status_code=500, detail=str(e))
 
-    @router.post(
-        "/reprocess_failed",
-        response_model=ReprocessResponse,
-        dependencies=[Depends(combined_auth)],
-    )
+    # 异步执行
+    @router.post("/reprocess_failed",response_model=ReprocessResponse,dependencies=[Depends(combined_auth)],)
     async def reprocess_failed_documents(background_tasks: BackgroundTasks):
-        """
-        Reprocess failed and pending documents.
-
-        This endpoint triggers the document processing pipeline which automatically
-        picks up and reprocesses documents in the following statuses:
+        """ Reprocess failed and pending documents.
+        This endpoint triggers the document processing pipeline which automatically picks up and reprocesses documents in the following statuses:
         - FAILED: Documents that failed during previous processing attempts
         - PENDING: Documents waiting to be processed
         - PROCESSING: Documents with abnormally terminated processing (e.g., server crashes)
 
-        This is useful for recovering from server crashes, network errors, LLM service
-        outages, or other temporary failures that caused document processing to fail.
-
-        The processing happens in the background and can be monitored using the
-        returned track_id or by checking the pipeline status.
+        This is useful for recovering from server crashes, network errors, LLM service outages, or other temporary failures that caused document processing to fail.
+        The processing happens in the background and can be monitored using the returned track_id or by checking the pipeline status.
 
         Returns:
             ReprocessResponse: Response with status, message, and track_id
-
         Raises:
             HTTPException: If an error occurs while initiating reprocessing (500).
         """
@@ -3071,11 +2984,15 @@ def create_document_routes(
             # Generate track_id with "retry" prefix for retry operation
             track_id = generate_track_id("retry")
 
-            # Start the reprocessing in the background
+            # Start the reprocessing in the background - 把任务真正添加到后台开始执行； 
+            # 这个方法中的参数是 LightRAG 文档处理管道的核心，它实现了从原始文本到知识图谱的完整转换过程。通过异步处理和并发控制，系统能够高效处理大量文档，同时提供实时进度跟踪和错误恢复能力
+            # rag.apipeline_process_enqueue_documents： 是 LightRAG 的核心文档处理方法，负责异步处理队列中的所有文档, 解释如下：
+            # https://deepwiki.com/search/displaysplashscreen_f2969a66-afd6-40ee-a66b-05434aafc6ad?mode=fast#47
+            # 其中这个 add_tasks 的任务处理逻辑代码过程为： add_task() → pipeline_index_file() → rag.apipeline_process_enqueue_documents() 
+            # 其中 apipeline_process_enqueue_documents lightrag/lightrag.py  位于  lightrag/lightrag.py
+            # 这个方法内部还有  process_document 方法，是文档处理的核心逻辑所在
             background_tasks.add_task(rag.apipeline_process_enqueue_documents)
-            logger.info(
-                f"Reprocessing of failed documents initiated with track_id: {track_id}"
-            )
+            logger.info(f"Reprocessing of failed documents initiated with track_id: {track_id}")
 
             return ReprocessResponse(
                 status="reprocessing_started",

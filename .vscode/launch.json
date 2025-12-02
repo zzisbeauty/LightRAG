@@ -1,0 +1,64 @@
+{  
+    "version": "0.2.0",  
+    "configurations": [  
+
+        // 只能启动后端服务
+        {  
+            "name": "Debug LightRAG Server",  
+            "type": "python",  
+            "request": "launch",  
+            "module": "lightrag.api.lightrag_server",  
+            // "cwd": "${workspaceFolder}",  
+            "cwd": "/app/LightRAG",  // 改为项目根目录
+            "env": {  
+                "PYTHONPATH": "${workspaceFolder}"  
+            },  
+            "args": [],  
+            "console": "integratedTerminal",  
+            "justMyCode": false  
+        },  
+
+
+        // 暂未使用
+        {  
+            "name": "Debug LightRAG (Development Mode)",  
+            "type": "python",  
+            "request": "launch",  
+            "module": "uvicorn",  
+            "args": [  
+                "lightrag.api.lightrag_server:app",  
+                "--reload",  
+                "--host", "0.0.0.0",  
+                "--port", "9621"  
+            ],  
+            "cwd": "${workspaceFolder}",  
+            "env": {  
+                "PYTHONPATH": "${workspaceFolder}"  
+            },  
+            "console": "integratedTerminal",  
+            "justMyCode": false  
+        },
+        
+
+        // 前后端都能打开
+        {  
+            "name": "Debug Backend Only",  
+            "type": "python",  
+            "request": "launch",  
+            "module": "lightrag.api.lightrag_server",  
+            "cwd": "${workspaceFolder}",  
+            "env": {  
+                "PYTHONPATH": "${workspaceFolder}"  
+            },  
+            "args": ["--log-level", "DEBUG"],  
+            "console": "integratedTerminal",  
+            "justMyCode": false,  
+            "skipFiles": ["**/lightrag_webui/**"]  
+        }
+
+
+
+
+
+    ]  
+}

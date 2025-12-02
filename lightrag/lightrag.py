@@ -1167,9 +1167,7 @@ class LightRAG:
             track_id = generate_track_id("insert")
 
         await self.apipeline_enqueue_documents(input, ids, file_paths, track_id)
-        await self.apipeline_process_enqueue_documents(
-            split_by_character, split_by_character_only
-        )
+        await self.apipeline_process_enqueue_documents(split_by_character, split_by_character_only) # ========================
 
         return track_id
 
@@ -1181,14 +1179,10 @@ class LightRAG:
         doc_id: str | list[str] | None = None,
     ) -> None:
         loop = always_get_an_event_loop()
-        loop.run_until_complete(
-            self.ainsert_custom_chunks(full_text, text_chunks, doc_id)
-        )
+        loop.run_until_complete(self.ainsert_custom_chunks(full_text, text_chunks, doc_id))
 
     # TODO: deprecated, use ainsert instead
-    async def ainsert_custom_chunks(
-        self, full_text: str, text_chunks: list[str], doc_id: str | None = None
-    ) -> None:
+    async def ainsert_custom_chunks(self, full_text: str, text_chunks: list[str], doc_id: str | None = None) -> None:
         update_storage = False
         try:
             # Clean input texts
@@ -1226,9 +1220,7 @@ class LightRAG:
 
             doc_ids = set(inserting_chunks.keys())
             add_chunk_keys = await self.text_chunks.filter_keys(doc_ids)
-            inserting_chunks = {
-                k: v for k, v in inserting_chunks.items() if k in add_chunk_keys
-            }
+            inserting_chunks = {k: v for k, v in inserting_chunks.items() if k in add_chunk_keys}
             if not len(inserting_chunks):
                 logger.warning("All chunks are already in the storage.")
                 return
@@ -1252,9 +1244,7 @@ class LightRAG:
         file_paths: str | list[str] | None = None,
         track_id: str | None = None,
     ) -> str:
-        """
-        Pipeline for Processing Documents
-
+        """ Pipeline for Processing Documents
         1. Validate ids if provided or generate MD5 hash IDs and remove duplicate contents
         2. Generate document initial status
         3. Filter out already processed documents
@@ -1284,9 +1274,7 @@ class LightRAG:
             if isinstance(file_paths, str):
                 file_paths = [file_paths]
             if len(file_paths) != len(input):
-                raise ValueError(
-                    "Number of file paths must match the number of documents"
-                )
+                raise ValueError("Number of file paths must match the number of documents")
         else:
             # If no file paths provided, use placeholder
             file_paths = ["unknown_source"] * len(input)
@@ -1357,13 +1345,9 @@ class LightRAG:
         if ignored_ids:
             for doc_id in ignored_ids:
                 file_path = new_docs.get(doc_id, {}).get("file_path", "unknown_source")
-                logger.warning(
-                    f"Ignoring document ID (already exists): {doc_id} ({file_path})"
-                )
+                logger.warning(f"Ignoring document ID (already exists): {doc_id} ({file_path})")
             if len(ignored_ids) > 3:
-                logger.warning(
-                    f"Total Ignoring {len(ignored_ids)} document IDs that already exist in storage"
-                )
+                logger.warning(f"Total Ignoring {len(ignored_ids)} document IDs that already exist in storage")
 
         # Filter new_docs to only include documents with unique IDs
         new_docs = {
@@ -1400,9 +1384,7 @@ class LightRAG:
         error_files: list[dict[str, Any]],
         track_id: str | None = None,
     ) -> None:
-        """
-        Record file extraction errors in doc_status storage.
-
+        """ Record file extraction errors in doc_status storage.
         This function creates error document entries in the doc_status storage for files
         that failed during the extraction process. Each error entry contains information
         about the failure to help with debugging and monitoring.
@@ -1432,9 +1414,7 @@ class LightRAG:
 
         for error_file in error_files:
             file_path = error_file.get("file_path", "unknown_file")
-            error_description = error_file.get(
-                "error_description", "File extraction failed"
-            )
+            error_description = error_file.get("error_description", "File extraction failed")
             original_error = error_file.get("original_error", "Unknown error")
             file_size = error_file.get("file_size", 0)
 
@@ -1452,9 +1432,7 @@ class LightRAG:
                 "updated_at": current_time,
                 "file_path": file_path,
                 "track_id": track_id,
-                "metadata": {
-                    "error_type": "file_extraction_error",
-                },
+                "metadata": {"error_type": "file_extraction_error",},
             }
 
         # Store error documents in doc_status
@@ -1462,9 +1440,7 @@ class LightRAG:
             await self.doc_status.upsert(error_docs)
             # Log each error for debugging
             for doc_id, error_doc in error_docs.items():
-                logger.error(
-                    f"File processing error: - ID: {doc_id} {error_doc['file_path']}"
-                )
+                logger.error(f"File processing error: - ID: {doc_id} {error_doc['file_path']}")
 
     async def _validate_and_fix_document_consistency(
         self,
@@ -1506,9 +1482,7 @@ class LightRAG:
         # Delete inconsistent document entries(excluding failed documents)
         if inconsistent_docs:
             async with pipeline_status_lock:
-                summary_message = (
-                    f"Inconsistent document entries found: {len(inconsistent_docs)}"
-                )
+                summary_message = (f"Inconsistent document entries found: {len(inconsistent_docs)}")
                 logger.info(summary_message)
                 pipeline_status["latest_message"] = summary_message
                 pipeline_status["history_messages"].append(summary_message)
@@ -1525,9 +1499,7 @@ class LightRAG:
 
                     # Log successful deletion
                     async with pipeline_status_lock:
-                        log_message = (
-                            f"Deleted inconsistent entry: {doc_id} ({file_path})"
-                        )
+                        log_message = (f"Deleted inconsistent entry: {doc_id} ({file_path})")
                         logger.info(log_message)
                         pipeline_status["latest_message"] = log_message
                         pipeline_status["history_messages"].append(log_message)
@@ -1598,11 +1570,8 @@ class LightRAG:
         split_by_character: str | None = None,
         split_by_character_only: bool = False,
     ) -> None:
-        """
-        Process pending documents by splitting them into chunks, processing
-        each chunk for entity and relation extraction, and updating the
-        document status.
-
+        """ Process pending documents by splitting them into chunks, processing
+        each chunk for entity and relation extraction, and updating the document status.
         1. Get all pending, failed, and abnormally terminated processing documents.
         2. Validate document data consistency and fix any issues
         3. Split document content into chunks
@@ -1611,12 +1580,8 @@ class LightRAG:
         """
 
         # Get pipeline status shared data and lock
-        pipeline_status = await get_namespace_data(
-            "pipeline_status", workspace=self.workspace
-        )
-        pipeline_status_lock = get_namespace_lock(
-            "pipeline_status", workspace=self.workspace
-        )
+        pipeline_status = await get_namespace_data("pipeline_status", workspace=self.workspace)
+        pipeline_status_lock = get_namespace_lock("pipeline_status", workspace=self.workspace)
 
         # Check if another process is already processing the queue
         async with pipeline_status_lock:
@@ -1655,9 +1620,7 @@ class LightRAG:
             else:
                 # Another process is busy, just set request flag and return
                 pipeline_status["request_pending"] = True
-                logger.info(
-                    "Another process is already processing the document queue. Request queued."
-                )
+                logger.info("Another process is already processing the document queue. Request queued.")
                 return
 
         try:
@@ -1692,9 +1655,7 @@ class LightRAG:
                 )
 
                 if not to_process_docs:
-                    log_message = (
-                        "No valid documents to process after consistency check"
-                    )
+                    log_message = ("No valid documents to process after consistency check")
                     logger.info(log_message)
                     pipeline_status["latest_message"] = log_message
                     pipeline_status["history_messages"].append(log_message)
@@ -1716,9 +1677,7 @@ class LightRAG:
 
                 # Handle cases where first_doc_path is None
                 if first_doc_path:
-                    path_prefix = first_doc_path[:20] + (
-                        "..." if len(first_doc_path) > 20 else ""
-                    )
+                    path_prefix = first_doc_path[:20] + ("..." if len(first_doc_path) > 20 else "")
                 else:
                     path_prefix = "unknown_source"
 
@@ -1761,18 +1720,13 @@ class LightRAG:
                                     raise PipelineCancelledException("User cancelled")
 
                             # Get file path from status document
-                            file_path = getattr(
-                                status_doc, "file_path", "unknown_source"
-                            )
+                            file_path = getattr(status_doc, "file_path", "unknown_source")
 
                             async with pipeline_status_lock:
                                 # Update processed file count and save current file number
                                 processed_count += 1
-                                current_file_number = (
-                                    processed_count  # Save the current file number
-                                )
+                                current_file_number = (processed_count)  # Save the current file number
                                 pipeline_status["cur_batch"] = processed_count
-
                                 log_message = f"Extracting stage {current_file_number}/{total_files}: {file_path}"
                                 logger.info(log_message)
                                 pipeline_status["history_messages"].append(log_message)
@@ -1783,19 +1737,13 @@ class LightRAG:
 
                                 # Prevent memory growth: keep only latest 5000 messages when exceeding 10000
                                 if len(pipeline_status["history_messages"]) > 10000:
-                                    logger.info(
-                                        f"Trimming pipeline history from {len(pipeline_status['history_messages'])} to 5000 messages"
-                                    )
-                                    pipeline_status["history_messages"] = (
-                                        pipeline_status["history_messages"][-5000:]
-                                    )
+                                    logger.info(f"Trimming pipeline history from {len(pipeline_status['history_messages'])} to 5000 messages")
+                                    pipeline_status["history_messages"] = (pipeline_status["history_messages"][-5000:])
 
                             # Get document content from full_docs
                             content_data = await self.full_docs.get_by_id(doc_id)
                             if not content_data:
-                                raise Exception(
-                                    f"Document content not found in full_docs for doc_id: {doc_id}"
-                                )
+                                raise Exception(f"Document content not found in full_docs for doc_id: {doc_id}")
                             content = content_data["content"]
 
                             # Call chunking function, supporting both sync and async implementations
@@ -1814,10 +1762,7 @@ class LightRAG:
 
                             # Validate return type
                             if not isinstance(chunking_result, (list, tuple)):
-                                raise TypeError(
-                                    f"chunking_func must return a list or tuple of dicts, "
-                                    f"got {type(chunking_result)}"
-                                )
+                                raise TypeError(f"chunking_func must return a list or tuple of dicts, got {type(chunking_result)}")
 
                             # Build chunks dictionary
                             chunks: dict[str, Any] = {
@@ -1849,30 +1794,20 @@ class LightRAG:
                                         doc_id: {
                                             "status": DocStatus.PROCESSING,
                                             "chunks_count": len(chunks),
-                                            "chunks_list": list(
-                                                chunks.keys()
-                                            ),  # Save chunks list
+                                            "chunks_list": list(chunks.keys()),  # Save chunks list
                                             "content_summary": status_doc.content_summary,
                                             "content_length": status_doc.content_length,
                                             "created_at": status_doc.created_at,
-                                            "updated_at": datetime.now(
-                                                timezone.utc
-                                            ).isoformat(),
+                                            "updated_at": datetime.now(timezone.utc).isoformat(),
                                             "file_path": file_path,
                                             "track_id": status_doc.track_id,  # Preserve existing track_id
-                                            "metadata": {
-                                                "processing_start_time": processing_start_time
-                                            },
+                                            "metadata": {"processing_start_time": processing_start_time},
                                         }
                                     }
                                 )
                             )
-                            chunks_vdb_task = asyncio.create_task(
-                                self.chunks_vdb.upsert(chunks)
-                            )
-                            text_chunks_task = asyncio.create_task(
-                                self.text_chunks.upsert(chunks)
-                            )
+                            chunks_vdb_task = asyncio.create_task(self.chunks_vdb.upsert(chunks))
+                            text_chunks_task = asyncio.create_task(self.text_chunks.upsert(chunks))
 
                             # First stage tasks (parallel execution)
                             first_stage_tasks = [
@@ -1887,9 +1822,7 @@ class LightRAG:
 
                             # Stage 2: Process entity relation graph (after text_chunks are saved)
                             entity_relation_task = asyncio.create_task(
-                                self._process_extract_entities(
-                                    chunks, pipeline_status, pipeline_status_lock
-                                )
+                                self._process_extract_entities(chunks, pipeline_status, pipeline_status_lock)
                             )
                             chunk_results = await entity_relation_task
                             file_extraction_stage_ok = True
@@ -1902,9 +1835,7 @@ class LightRAG:
                                 logger.warning(error_msg)
                                 async with pipeline_status_lock:
                                     pipeline_status["latest_message"] = error_msg
-                                    pipeline_status["history_messages"].append(
-                                        error_msg
-                                    )
+                                    pipeline_status["history_messages"].append(error_msg)
                             else:
                                 # Other exceptions - log with traceback
                                 logger.error(traceback.format_exc())
@@ -1912,17 +1843,11 @@ class LightRAG:
                                 logger.error(error_msg)
                                 async with pipeline_status_lock:
                                     pipeline_status["latest_message"] = error_msg
-                                    pipeline_status["history_messages"].append(
-                                        traceback.format_exc()
-                                    )
-                                    pipeline_status["history_messages"].append(
-                                        error_msg
-                                    )
+                                    pipeline_status["history_messages"].append(traceback.format_exc())
+                                    pipeline_status["history_messages"].append(error_msg)
 
                             # Cancel tasks that are not yet completed
-                            all_tasks = first_stage_tasks + (
-                                [entity_relation_task] if entity_relation_task else []
-                            )
+                            all_tasks = first_stage_tasks + ([entity_relation_task] if entity_relation_task else [])
                             for task in all_tasks:
                                 if task and not task.done():
                                     task.cancel()
@@ -1932,9 +1857,7 @@ class LightRAG:
                                 try:
                                     await self.llm_response_cache.index_done_callback()
                                 except Exception as persist_error:
-                                    logger.error(
-                                        f"Failed to persist LLM cache: {persist_error}"
-                                    )
+                                    logger.error(f"Failed to persist LLM cache: {persist_error}")
 
                             # Record processing end time for failed case
                             processing_end_time = int(time.time())
@@ -1948,9 +1871,7 @@ class LightRAG:
                                         "content_summary": status_doc.content_summary,
                                         "content_length": status_doc.content_length,
                                         "created_at": status_doc.created_at,
-                                        "updated_at": datetime.now(
-                                            timezone.utc
-                                        ).isoformat(),
+                                        "updated_at": datetime.now(timezone.utc).isoformat(),
                                         "file_path": file_path,
                                         "track_id": status_doc.track_id,  # Preserve existing track_id
                                         "metadata": {
@@ -1966,12 +1887,8 @@ class LightRAG:
                             try:
                                 # Check for cancellation before merge
                                 async with pipeline_status_lock:
-                                    if pipeline_status.get(
-                                        "cancellation_requested", False
-                                    ):
-                                        raise PipelineCancelledException(
-                                            "User cancelled"
-                                        )
+                                    if pipeline_status.get("cancellation_requested", False):
+                                        raise PipelineCancelledException("User cancelled")
 
                                 # Use chunk_results from entity_relation_task
                                 await merge_nodes_and_edges(
@@ -2005,9 +1922,7 @@ class LightRAG:
                                             "content_summary": status_doc.content_summary,
                                             "content_length": status_doc.content_length,
                                             "created_at": status_doc.created_at,
-                                            "updated_at": datetime.now(
-                                                timezone.utc
-                                            ).isoformat(),
+                                            "updated_at": datetime.now(timezone.utc).isoformat(),
                                             "file_path": file_path,
                                             "track_id": status_doc.track_id,  # Preserve existing track_id
                                             "metadata": {
@@ -2025,9 +1940,7 @@ class LightRAG:
                                     log_message = f"Completed processing file {current_file_number}/{total_files}: {file_path}"
                                     logger.info(log_message)
                                     pipeline_status["latest_message"] = log_message
-                                    pipeline_status["history_messages"].append(
-                                        log_message
-                                    )
+                                    pipeline_status["history_messages"].append(log_message)
 
                             except Exception as e:
                                 # Check if this is a user cancellation
@@ -2037,9 +1950,7 @@ class LightRAG:
                                     logger.warning(error_msg)
                                     async with pipeline_status_lock:
                                         pipeline_status["latest_message"] = error_msg
-                                        pipeline_status["history_messages"].append(
-                                            error_msg
-                                        )
+                                        pipeline_status["history_messages"].append(error_msg)
                                 else:
                                     # Other exceptions - log with traceback
                                     logger.error(traceback.format_exc())
@@ -2047,21 +1958,15 @@ class LightRAG:
                                     logger.error(error_msg)
                                     async with pipeline_status_lock:
                                         pipeline_status["latest_message"] = error_msg
-                                        pipeline_status["history_messages"].append(
-                                            traceback.format_exc()
-                                        )
-                                        pipeline_status["history_messages"].append(
-                                            error_msg
-                                        )
+                                        pipeline_status["history_messages"].append(traceback.format_exc())
+                                        pipeline_status["history_messages"].append(error_msg)
 
                                 # Persistent llm cache with error handling
                                 if self.llm_response_cache:
                                     try:
                                         await self.llm_response_cache.index_done_callback()
                                     except Exception as persist_error:
-                                        logger.error(
-                                            f"Failed to persist LLM cache: {persist_error}"
-                                        )
+                                        logger.error(f"Failed to persist LLM cache: {persist_error}")
 
                                 # Record processing end time for failed case
                                 processing_end_time = int(time.time())
@@ -2109,13 +2014,11 @@ class LightRAG:
                     for task in doc_tasks:
                         if not task.done():
                             task.cancel()
-
                     # Wait for all tasks to complete cancellation
                     await asyncio.wait(doc_tasks, return_when=asyncio.ALL_COMPLETED)
-
                     # Exit directly (document statuses already updated in process_document)
                     return
-
+                
                 # Check if there's a pending request to process more documents (with lock)
                 has_pending_request = False
                 async with pipeline_status_lock:
@@ -2150,15 +2053,11 @@ class LightRAG:
             # Always reset busy status and cancellation flag when done or if an exception occurs (with lock)
             async with pipeline_status_lock:
                 pipeline_status["busy"] = False
-                pipeline_status["cancellation_requested"] = (
-                    False  # Always reset cancellation flag
-                )
+                pipeline_status["cancellation_requested"] = (False)  # Always reset cancellation flag
                 pipeline_status["latest_message"] = log_message
                 pipeline_status["history_messages"].append(log_message)
 
-    async def _process_extract_entities(
-        self, chunk: dict[str, Any], pipeline_status=None, pipeline_status_lock=None
-    ) -> list:
+    async def _process_extract_entities(self, chunk: dict[str, Any], pipeline_status=None, pipeline_status_lock=None) -> list:
         try:
             chunk_results = await extract_entities(
                 chunk,
@@ -2177,9 +2076,7 @@ class LightRAG:
                 pipeline_status["history_messages"].append(error_msg)
             raise e
 
-    async def _insert_done(
-        self, pipeline_status=None, pipeline_status_lock=None
-    ) -> None:
+    async def _insert_done(self, pipeline_status=None, pipeline_status_lock=None) -> None:
         tasks = [
             cast(StorageNameSpace, storage_inst).index_done_callback()
             for storage_inst in [  # type: ignore

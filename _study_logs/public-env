@@ -1,0 +1,5 @@
+- 项目简介  https://deepwiki.com/search/_02f187ef-943e-4b6e-9407-b0a6f198ff9d?mode=fast#1
+
+- 基于 dockerfile 构建 image 以及 yml 启动容器 `LightRAG/docker-compose.my.yml`
+
+    容器启动的类型与服务启动紧密相关；具体查看上述 yml

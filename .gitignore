@@ -37,8 +37,8 @@ temp/
 
 # IDE / Editor Files
 .idea/
-.vscode/
-.vscode/settings.json
+# .vscode/
+# .vscode/settings.json
 
 # Framework-specific files
 local_neo4jWorkDir/
