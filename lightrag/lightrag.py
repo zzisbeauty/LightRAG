@@ -128,7 +128,7 @@ config.read("config.ini", "utf-8")
 @final
 @dataclass
 class LightRAG:
-    """LightRAG: Simple and Fast Retrieval-Augmented Generation."""
+    """ LightRAG: Simple and Fast Retrieval-Augmented Generation. """
 
     # Directory
     # ---
@@ -659,24 +659,19 @@ class LightRAG:
         self._storages_status = StoragesStatus.CREATED
 
     async def initialize_storages(self):
-        """Storage initialization must be called one by one to prevent deadlock"""
+        """ Storage initialization must be called one by one to prevent deadlock """
+        print("status:", self._storages_status)
         if self._storages_status == StoragesStatus.CREATED:
-            # Set the first initialized workspace will set the default workspace
-            # Allows namespace operation without specifying workspace for backward compatibility
+            # Set the first initialized workspace will set the default workspace; # Allows namespace operation without specifying workspace for backward compatibility
             default_workspace = get_default_workspace()
             if default_workspace is None:
                 set_default_workspace(self.workspace)
             elif default_workspace != self.workspace:
-                logger.info(
-                    f"Creating LightRAG instance with workspace='{self.workspace}' "
-                    f"while default workspace is set to '{default_workspace}'"
-                )
+                logger.info(f"Creating LightRAG instance with workspace='{self.workspace}' while default workspace is set to '{default_workspace}'")
 
             # Auto-initialize pipeline_status for this workspace
             from lightrag.kg.shared_storage import initialize_pipeline_status
-
             await initialize_pipeline_status(workspace=self.workspace)
-
             for storage in (
                 self.full_docs,
                 self.text_chunks,
@@ -699,7 +694,7 @@ class LightRAG:
             logger.debug("All storage types initialized")
 
     async def finalize_storages(self):
-        """Asynchronously finalize the storages with improved error handling"""
+        """ Asynchronously finalize the storages with improved error handling """
         if self._storages_status == StoragesStatus.INITIALIZED:
             storages = [
                 ("full_docs", self.full_docs),
@@ -717,8 +712,7 @@ class LightRAG:
             ]
 
             # Finalize each storage individually to ensure one failure doesn't prevent others from closing
-            successful_finalizations = []
-            failed_finalizations = []
+            successful_finalizations, failed_finalizations = [], []
 
             for storage_name, storage in storages:
                 if storage:
@@ -733,17 +727,11 @@ class LightRAG:
 
             # Log summary of finalization results
             if successful_finalizations:
-                logger.info(
-                    f"Successfully finalized {len(successful_finalizations)} storages"
-                )
-
+                logger.info(f"Successfully finalized {len(successful_finalizations)} storages")
             if failed_finalizations:
-                logger.error(
-                    f"Failed to finalize {len(failed_finalizations)} storages: {', '.join(failed_finalizations)}"
-                )
+                logger.error(f"Failed to finalize {len(failed_finalizations)} storages: {', '.join(failed_finalizations)}")
             else:
                 logger.debug("All storages finalized successfully")
-
             self._storages_status = StoragesStatus.FINALIZED
 
     async def check_and_migrate_data(self):
@@ -755,14 +743,10 @@ class LightRAG:
                 # 2. full_entities and full_relations are empty
 
                 # Get all entity labels from graph
-                all_entity_labels = (
-                    await self.chunk_entity_relation_graph.get_all_labels()
-                )
-
+                all_entity_labels = (await self.chunk_entity_relation_graph.get_all_labels())
                 if not all_entity_labels:
                     logger.debug("No entities found in graph, skipping migration check")
                     return
-
                 try:
                     # Initialize chunk tracking storage after migration
                     await self._migrate_chunk_tracking_storage()
@@ -773,19 +757,14 @@ class LightRAG:
                 # Check if full_entities and full_relations are empty
                 # Get all processed documents to check their entity/relation data
                 try:
-                    processed_docs = await self.doc_status.get_docs_by_status(
-                        DocStatus.PROCESSED
-                    )
-
+                    processed_docs = await self.doc_status.get_docs_by_status(DocStatus.PROCESSED)
                     if not processed_docs:
                         logger.debug("No processed documents found, skipping migration")
                         return
-
                     # Check first few documents to see if they have full_entities/full_relations data
                     migration_needed = True
                     checked_count = 0
                     max_check = min(5, len(processed_docs))  # Check up to 5 documents
-
                     for doc_id in list(processed_docs.keys())[:max_check]:
                         checked_count += 1
                         entity_data = await self.full_entities.get_by_id(doc_id)
@@ -794,24 +773,15 @@ class LightRAG:
                         if entity_data or relation_data:
                             migration_needed = False
                             break
-
                     if not migration_needed:
-                        logger.debug(
-                            "Full entities/relations data already exists, no migration needed"
-                        )
+                        logger.debug("Full entities/relations data already exists, no migration needed")
                         return
-
-                    logger.info(
-                        f"Data migration needed: found {len(all_entity_labels)} entities in graph but no full_entities/full_relations data"
-                    )
-
+                    logger.info(f"Data migration needed: found {len(all_entity_labels)} entities in graph but no full_entities/full_relations data")
                     # Perform migration
                     await self._migrate_entity_relation_data(processed_docs)
-
                 except Exception as e:
                     logger.error(f"Error during migration check: {e}")
                     raise e
-
             except Exception as e:
                 logger.error(f"Error in data migration check: {e}")
                 raise e
@@ -1147,8 +1117,7 @@ class LightRAG:
         file_paths: str | list[str] | None = None,
         track_id: str | None = None,
     ) -> str:
-        """Async Insert documents with checkpoint support
-
+        """ Async Insert documents with checkpoint support
         Args:
             input: Single document string or list of document strings
             split_by_character: if split_by_character is not None, split the string by character, if chunk longer than
@@ -1158,7 +1127,6 @@ class LightRAG:
             ids: list of unique document IDs, if not provided, MD5 hash IDs will be generated
             file_paths: list of file paths corresponding to each document, used for citation
             track_id: tracking ID for monitoring processing status, if not provided, will be generated
-
         Returns:
             str: tracking ID for monitoring processing status
         """
@@ -1578,7 +1546,6 @@ class LightRAG:
         4. Process each chunk for entity and relation extraction
         5. Update the document status
         """
-
         # Get pipeline status shared data and lock
         pipeline_status = await get_namespace_data("pipeline_status", workspace=self.workspace)
         pipeline_status_lock = get_namespace_lock("pipeline_status", workspace=self.workspace)
@@ -1650,9 +1617,7 @@ class LightRAG:
                     break
 
                 # Validate document data consistency and fix any issues as part of the pipeline
-                to_process_docs = await self._validate_and_fix_document_consistency(
-                    to_process_docs, pipeline_status, pipeline_status_lock
-                )
+                to_process_docs = await self._validate_and_fix_document_consistency(to_process_docs, pipeline_status, pipeline_status_lock)
 
                 if not to_process_docs:
                     log_message = ("No valid documents to process after consistency check")

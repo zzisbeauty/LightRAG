@@ -260,27 +260,27 @@ def create_app(args):
     # 是在创建一个智能的 LLM 和嵌入模型配置缓存对象 这种设计提高了性能，特别是在高并发场景下，避免了每次请求都重新解析配置参数的开销。
     config_cache = LLMConfigCache(args) 
 
-    # Verify that bindings are correctly setup
-    if args.llm_binding not in [
-        "lollms",
-        "ollama",
-        "openai",
-        "azure_openai",
-        "aws_bedrock",
-        "gemini",
-    ]:
-        raise Exception("llm binding not supported")
+    # # Verify that bindings are correctly setup
+    # if args.llm_binding not in [
+    #     "lollms",
+    #     "ollama",
+    #     "openai",
+    #     "azure_openai",
+    #     "aws_bedrock",
+    #     "gemini",
+    # ]:
+    #     raise Exception("llm binding not supported")
 
-    if args.embedding_binding not in [
-        "lollms",
-        "ollama",
-        "openai",
-        "azure_openai",
-        "aws_bedrock",
-        "jina",
-        "gemini",
-    ]:
-        raise Exception("embedding binding not supported")
+    # if args.embedding_binding not in [
+    #     "lollms",
+    #     "ollama",
+    #     "openai",
+    #     "azure_openai",
+    #     "aws_bedrock",
+    #     "jina",
+    #     "gemini",
+    # ]:
+    #     raise Exception("embedding binding not supported")
 
     # Set default hosts if not provided
     if args.llm_binding_host is None:
@@ -289,14 +289,14 @@ def create_app(args):
     if args.embedding_binding_host is None:
         args.embedding_binding_host = get_default_host(args.embedding_binding)
 
-    # Add SSL validation
-    if args.ssl:
-        if not args.ssl_certfile or not args.ssl_keyfile:
-            raise Exception("SSL certificate and key files must be provided when SSL is enabled")
-        if not os.path.exists(args.ssl_certfile):
-            raise Exception(f"SSL certificate file not found: {args.ssl_certfile}")
-        if not os.path.exists(args.ssl_keyfile):
-            raise Exception(f"SSL key file not found: {args.ssl_keyfile}")
+    # # Add SSL validation
+    # if args.ssl:
+    #     if not args.ssl_certfile or not args.ssl_keyfile:
+    #         raise Exception("SSL certificate and key files must be provided when SSL is enabled")
+    #     if not os.path.exists(args.ssl_certfile):
+    #         raise Exception(f"SSL certificate file not found: {args.ssl_certfile}")
+    #     if not os.path.exists(args.ssl_keyfile):
+    #         raise Exception(f"SSL key file not found: {args.ssl_keyfile}")
 
     # Check if API key is provided either through env var or args
     api_key = os.getenv("LIGHTRAG_API_KEY") or args.key
@@ -1218,9 +1218,9 @@ def main():
     # uvicorn_config = {"app": app, "host": global_args.host, "port": global_args.port, "log_config": None,}
     # if global_args.ssl:
     #     uvicorn_config.update({"ssl_certfile": global_args.ssl_certfile, "ssl_keyfile": global_args.ssl_keyfile,})
-
-    print(f"Starting Uvicorn server in single-process mode on {global_args.host}:{global_args.port}")
+    # print(f"Starting Uvicorn server in single-process mode on {global_args.host}:{global_args.port}")
     # uvicorn.run(**uvicorn_config) # 稳定的启动方案
+
     uvicorn.run(app, host="0.0.0.0", port=9621) # 仅适合开发测试，不适合生产，不是标准的基于 uvicorn 启动 app server 的方式；
 
 

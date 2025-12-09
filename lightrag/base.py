@@ -221,26 +221,21 @@ class BaseVectorStorage(StorageNameSpace, ABC):
     meta_fields: set[str] = field(default_factory=set)
 
     @abstractmethod
-    async def query(
-        self, query: str, top_k: int, query_embedding: list[float] = None
-    ) -> list[dict[str, Any]]:
-        """Query the vector storage and retrieve top_k results.
-
+    async def query(self, query: str, top_k: int, query_embedding: list[float] = None) -> list[dict[str, Any]]:
+        """ Query the vector storage and retrieve top_k results.
         Args:
             query: The query string to search for
             top_k: Number of top results to return
             query_embedding: Optional pre-computed embedding for the query.
-                           If provided, skips embedding computation for better performance.
+                             If provided, skips embedding computation for better performance.
         """
 
     @abstractmethod
     async def upsert(self, data: dict[str, dict[str, Any]]) -> None:
-        """Insert or update vectors in the storage.
-
+        """ Insert or update vectors in the storage.
         Importance notes for in-memory storage:
         1. Changes will be persisted to disk during the next index_done_callback
-        2. Only one process should updating the storage at a time before index_done_callback,
-           KG-storage-log should be used to avoid data corruption
+        2. Only one process should updating the storage at a time before index_done_callback, KG-storage-log should be used to avoid data corruption
         """
 
     @abstractmethod

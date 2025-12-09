@@ -1,0 +1,50 @@
+{
+  "doc-ab8a95ed6d7eefaf27d51032137c6a13": {
+    "relation_pairs": [
+      [
+        "Lian Po",
+        "The Narrator"
+      ],
+      [
+        "Age 8 Incident",
+        "Classmate"
+      ],
+      [
+        "Age 4 Incident",
+        "The Narrator"
+      ],
+      [
+        "Mother",
+        "The Narrator"
+      ],
+      [
+        "Age 4 Incident",
+        "Neighbor"
+      ],
+      [
+        "Family Rules",
+        "The Narrator"
+      ],
+      [
+        "Age 8 Incident",
+        "The Narrator"
+      ],
+      [
+        "Age 8 Incident",
+        "Mother"
+      ],
+      [
+        "Age 8 Incident",
+        "Neighbor"
+      ],
+      [
+        "Lin Xiang Ru",
+        "The Narrator"
+      ]
+    ],
+    "count": 10,
+    "create_time": 1765171757,
+    "update_time": 1765171757,
+    "_id": "doc-ab8a95ed6d7eefaf27d51032137c6a13"
+  }
+}

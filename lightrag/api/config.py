@@ -474,7 +474,7 @@ _initialized = False
 
 
 def initialize_config(args=None, force=False):
-    """Initialize global configuration
+    """ Initialize global configuration
 
     This function allows explicit initialization of the configuration,
     which is useful for programmatic usage, testing, or embedding LightRAG

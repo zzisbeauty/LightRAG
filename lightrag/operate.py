@@ -113,30 +113,16 @@ def chunking_by_token_size(
             for chunk in raw_chunks:
                 _tokens = tokenizer.encode(chunk)
                 if len(_tokens) > chunk_token_size:
-                    logger.warning(
-                        "Chunk split_by_character exceeds token limit: len=%d limit=%d",
-                        len(_tokens),
-                        chunk_token_size,
-                    )
-                    raise ChunkTokenLimitExceededError(
-                        chunk_tokens=len(_tokens),
-                        chunk_token_limit=chunk_token_size,
-                        chunk_preview=chunk[:120],
-                    )
+                    logger.warning("Chunk split_by_character exceeds token limit: len=%d limit=%d", len(_tokens), chunk_token_size,)
+                    raise ChunkTokenLimitExceededError(chunk_tokens=len(_tokens), chunk_token_limit=chunk_token_size, chunk_preview=chunk[:120], )
                 new_chunks.append((len(_tokens), chunk))
         else:
             for chunk in raw_chunks:
                 _tokens = tokenizer.encode(chunk)
                 if len(_tokens) > chunk_token_size:
-                    for start in range(
-                        0, len(_tokens), chunk_token_size - chunk_overlap_token_size
-                    ):
-                        chunk_content = tokenizer.decode(
-                            _tokens[start : start + chunk_token_size]
-                        )
-                        new_chunks.append(
-                            (min(chunk_token_size, len(_tokens) - start), chunk_content)
-                        )
+                    for start in range(0, len(_tokens), chunk_token_size - chunk_overlap_token_size):
+                        chunk_content = tokenizer.decode(_tokens[start : start + chunk_token_size])
+                        new_chunks.append((min(chunk_token_size, len(_tokens) - start), chunk_content))
                 else:
                     new_chunks.append((len(_tokens), chunk))
         for index, (_len, chunk) in enumerate(new_chunks):
@@ -148,9 +134,7 @@ def chunking_by_token_size(
                 }
             )
     else:
-        for index, start in enumerate(
-            range(0, len(tokens), chunk_token_size - chunk_overlap_token_size)
-        ):
+        for index, start in enumerate(range(0, len(tokens), chunk_token_size - chunk_overlap_token_size)):
             chunk_content = tokenizer.decode(tokens[start : start + chunk_token_size])
             results.append(
                 {
@@ -2777,9 +2761,7 @@ async def extract_entities(
     if pipeline_status is not None and pipeline_status_lock is not None:
         async with pipeline_status_lock:
             if pipeline_status.get("cancellation_requested", False):
-                raise PipelineCancelledException(
-                    "User cancelled during entity extraction"
-                )
+                raise PipelineCancelledException("User cancelled during entity extraction")
 
     use_llm_func: callable = global_config["llm_model_func"]
     entity_extract_max_gleaning = global_config["entity_extract_max_gleaning"]
@@ -2787,9 +2769,7 @@ async def extract_entities(
     ordered_chunks = list(chunks.items())
     # add language and example number params to prompt
     language = global_config["addon_params"].get("language", DEFAULT_SUMMARY_LANGUAGE)
-    entity_types = global_config["addon_params"].get(
-        "entity_types", DEFAULT_ENTITY_TYPES
-    )
+    entity_types = global_config["addon_params"].get("entity_types", DEFAULT_ENTITY_TYPES)
 
     examples = "\n".join(PROMPTS["entity_extraction_examples"])
 
@@ -2832,15 +2812,9 @@ async def extract_entities(
         cache_keys_collector = []
 
         # Get initial extraction
-        entity_extraction_system_prompt = PROMPTS[
-            "entity_extraction_system_prompt"
-        ].format(**{**context_base, "input_text": content})
-        entity_extraction_user_prompt = PROMPTS["entity_extraction_user_prompt"].format(
-            **{**context_base, "input_text": content}
-        )
-        entity_continue_extraction_user_prompt = PROMPTS[
-            "entity_continue_extraction_user_prompt"
-        ].format(**{**context_base, "input_text": content})
+        entity_extraction_system_prompt = PROMPTS["entity_extraction_system_prompt"].format(**{**context_base, "input_text": content})
+        entity_extraction_user_prompt = PROMPTS["entity_extraction_user_prompt"].format(**{**context_base, "input_text": content})
+        entity_continue_extraction_user_prompt = PROMPTS["entity_continue_extraction_user_prompt"].format(**{**context_base, "input_text": content})
 
         final_result, timestamp = await use_llm_func_with_cache(
             entity_extraction_user_prompt,
@@ -2952,10 +2926,7 @@ async def extract_entities(
             if pipeline_status is not None and pipeline_status_lock is not None:
                 async with pipeline_status_lock:
                     if pipeline_status.get("cancellation_requested", False):
-                        raise PipelineCancelledException(
-                            "User cancelled during chunk processing"
-                        )
-
+                        raise PipelineCancelledException("User cancelled during chunk processing")
             try:
                 return await _process_single_content(chunk)
             except Exception as e:

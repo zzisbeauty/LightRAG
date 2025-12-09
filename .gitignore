@@ -25,6 +25,7 @@ site/
 *.logfire
 *.coverage/
 log/
+logs/
 
 # Caches
 .cache/
@@ -60,7 +61,7 @@ ignore_this.txt
 *.ignore.*
 
 # Project-specific files
-/dickens*/
+# /dickens*/
 /book.txt
 download_models_hf.py
 

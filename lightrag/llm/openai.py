@@ -302,13 +302,9 @@ async def openai_complete_if_cache(
     try:
         # Don't use async with context manager, use client directly
         if "response_format" in kwargs:
-            response = await openai_async_client.chat.completions.parse(
-                model=api_model, messages=messages, **kwargs
-            )
+            response = await openai_async_client.chat.completions.parse(model=api_model, messages=messages, **kwargs)
         else:
-            response = await openai_async_client.chat.completions.create(
-                model=api_model, messages=messages, **kwargs
-            )
+            response = await openai_async_client.chat.completions.create(model=api_model, messages=messages, **kwargs)
     except APITimeoutError as e:
         logger.error(f"OpenAI API Timeout Error: {e}")
         await openai_async_client.close()  # Ensure client is closed
@@ -322,9 +318,7 @@ async def openai_complete_if_cache(
         await openai_async_client.close()  # Ensure client is closed
         raise
     except Exception as e:
-        logger.error(
-            f"OpenAI API Call Failed,\nModel: {model},\nParams: {kwargs}, Got: {e}"
-        )
+        logger.error(f"OpenAI API Call Failed,\nModel: {model},\nParams: {kwargs}, Got: {e}")
         await openai_async_client.close()  # Ensure client is closed
         raise
 
@@ -346,16 +340,12 @@ async def openai_complete_if_cache(
                     # Check if this chunk has usage information (final chunk)
                     if hasattr(chunk, "usage") and chunk.usage:
                         final_chunk_usage = chunk.usage
-                        logger.debug(
-                            f"Received usage info in streaming chunk: {chunk.usage}"
-                        )
+                        logger.debug(f"Received usage info in streaming chunk: {chunk.usage}")
 
                     # Check if choices exists and is not empty
                     if not hasattr(chunk, "choices") or not chunk.choices:
                         # Azure OpenAI sends content filter results in first chunk without choices
-                        logger.debug(
-                            f"Received chunk without choices (likely Azure content filter): {chunk}"
-                        )
+                        logger.debug(f"Received chunk without choices (likely Azure content filter): {chunk}")
                         continue
 
                     # Check if delta exists
@@ -400,9 +390,7 @@ async def openai_complete_if_cache(
                             # Process reasoning content if COT is active
                             if cot_active:
                                 if r"\u" in reasoning_content:
-                                    reasoning_content = safe_unicode_decode(
-                                        reasoning_content.encode("utf-8")
-                                    )
+                                    reasoning_content = safe_unicode_decode(reasoning_content.encode("utf-8"))
                                 yield reasoning_content
                     else:
                         # COT disabled, only process regular content
@@ -425,9 +413,7 @@ async def openai_complete_if_cache(
                     # Use actual usage from the API
                     token_counts = {
                         "prompt_tokens": getattr(final_chunk_usage, "prompt_tokens", 0),
-                        "completion_tokens": getattr(
-                            final_chunk_usage, "completion_tokens", 0
-                        ),
+                        "completion_tokens": getattr(final_chunk_usage, "completion_tokens", 0),
                         "total_tokens": getattr(final_chunk_usage, "total_tokens", 0),
                     }
                     token_tracker.add_usage(token_counts)
@@ -441,9 +427,7 @@ async def openai_complete_if_cache(
                         yield "</think>"
                         cot_active = False
                     except Exception as close_error:
-                        logger.warning(
-                            f"Failed to close COT tag during exception handling: {close_error}"
-                        )
+                        logger.warning(f"Failed to close COT tag during exception handling: {close_error}")
 
                 logger.error(f"Error in stream response: {str(e)}")
                 # Try to clean up resources if possible
@@ -456,9 +440,7 @@ async def openai_complete_if_cache(
                         await response.aclose()
                         logger.debug("Successfully closed stream response after error")
                     except Exception as close_error:
-                        logger.warning(
-                            f"Failed to close stream response: {close_error}"
-                        )
+                        logger.warning(f"Failed to close stream response: {close_error}")
                 # Ensure client is closed in case of exception
                 await openai_async_client.close()
                 raise
@@ -469,9 +451,7 @@ async def openai_complete_if_cache(
                         yield "</think>"
                         cot_active = False
                     except Exception as final_close_error:
-                        logger.warning(
-                            f"Failed to close COT tag in finally block: {final_close_error}"
-                        )
+                        logger.warning(f"Failed to close COT tag in finally block: {final_close_error}")
 
                 # Ensure resources are released even if no exception occurs
                 # Note: Some wrapped clients (e.g., Langfuse) may not implement aclose() properly
@@ -484,24 +464,16 @@ async def openai_complete_if_cache(
                         except (AttributeError, TypeError) as close_error:
                             # Some wrapper objects may report hasattr(aclose) but fail when called
                             # This is expected behavior for certain client wrappers
-                            logger.debug(
-                                f"Stream response cleanup not supported by client wrapper: {close_error}"
-                            )
+                            logger.debug(f"Stream response cleanup not supported by client wrapper: {close_error}")
                         except Exception as close_error:
-                            logger.warning(
-                                f"Unexpected error during stream response cleanup: {close_error}"
-                            )
+                            logger.warning(f"Unexpected error during stream response cleanup: {close_error}")
 
                 # This prevents resource leaks since the caller doesn't handle closing
                 try:
                     await openai_async_client.close()
-                    logger.debug(
-                        "Successfully closed OpenAI client for streaming response"
-                    )
+                    logger.debug("Successfully closed OpenAI client for streaming response")
                 except Exception as client_close_error:
-                    logger.warning(
-                        f"Failed to close OpenAI client in streaming finally block: {client_close_error}"
-                    )
+                    logger.warning(f"Failed to close OpenAI client in streaming finally block: {client_close_error}")
 
         return inner()
 
@@ -677,6 +649,9 @@ async def nvidia_openai_complete(
     return result
 
 
+
+
+
 @wrap_embedding_func_with_attrs(embedding_dim=1536, max_token_size=8192)
 @retry(
     stop=stop_after_attempt(3),
@@ -699,7 +674,7 @@ async def openai_embed(
     azure_deployment: str | None = None,
     api_version: str | None = None,
 ) -> np.ndarray:
-    """Generate embeddings for a list of texts using OpenAI's API.
+    """ Generate embeddings for a list of texts using OpenAI's API.
 
     This function supports both standard OpenAI and Azure OpenAI services.
 

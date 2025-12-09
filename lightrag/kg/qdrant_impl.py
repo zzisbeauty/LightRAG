@@ -69,9 +69,7 @@ def workspace_filter_condition(workspace: str) -> models.FieldCondition:
 @final
 @dataclass
 class QdrantVectorDBStorage(BaseVectorStorage):
-    def __init__(
-        self, namespace, global_config, embedding_func, workspace=None, meta_fields=None
-    ):
+    def __init__(self, namespace, global_config, embedding_func, workspace=None, meta_fields=None):
         super().__init__(
             namespace=namespace,
             workspace=workspace or "",
@@ -89,9 +87,7 @@ class QdrantVectorDBStorage(BaseVectorStorage):
         workspace: str = None,
         **kwargs,
     ):
-        """
-        Setup Qdrant collection with migration support from legacy collections.
-
+        """ Setup Qdrant collection with migration support from legacy collections.
         Args:
             client: QdrantClient instance
             collection_name: Name of the new collection
@@ -104,9 +100,7 @@ class QdrantVectorDBStorage(BaseVectorStorage):
 
         # Case 1: Both new and legacy collections exist - Warning only (no migration)
         if new_collection_exists and legacy_exists:
-            logger.warning(
-                f"Qdrant: Legacy collection '{legacy_namespace}' still exist. Remove it if migration is complete."
-            )
+            logger.warning(f"Qdrant: Legacy collection '{legacy_namespace}' still exist. Remove it if migration is complete.")
             return
 
         # Case 2: Only new collection exists - Ensure index exists
@@ -115,9 +109,7 @@ class QdrantVectorDBStorage(BaseVectorStorage):
             try:
                 collection_info = client.get_collection(collection_name)
                 if WORKSPACE_ID_FIELD not in collection_info.payload_schema:
-                    logger.info(
-                        f"Qdrant: Creating missing workspace index for '{collection_name}'"
-                    )
+                    logger.info(f"Qdrant: Creating missing workspace index for '{collection_name}'")
                     client.create_payload_index(
                         collection_name=collection_name,
                         field_name=WORKSPACE_ID_FIELD,
@@ -127,9 +119,7 @@ class QdrantVectorDBStorage(BaseVectorStorage):
                         ),
                     )
             except Exception as e:
-                logger.warning(
-                    f"Qdrant: Could not verify/create workspace index for '{collection_name}': {e}"
-                )
+                logger.warning(f"Qdrant: Could not verify/create workspace index for '{collection_name}': {e}")
             return
 
         # Case 3: Neither exists - Create new collection
@@ -148,15 +138,11 @@ class QdrantVectorDBStorage(BaseVectorStorage):
             return
 
         # Case 4: Only legacy exists - Migrate data
-        logger.info(
-            f"Qdrant: Migrating data from legacy collection '{legacy_namespace}'"
-        )
+        logger.info(f"Qdrant: Migrating data from legacy collection '{legacy_namespace}'")
 
         try:
             # Get legacy collection count
-            legacy_count = client.count(
-                collection_name=legacy_namespace, exact=True
-            ).count
+            legacy_count = client.count(collection_name=legacy_namespace, exact=True).count
             logger.info(f"Qdrant: Found {legacy_count} records in legacy collection")
 
             if legacy_count == 0:
@@ -243,9 +229,7 @@ class QdrantVectorDBStorage(BaseVectorStorage):
                 logger.error(error_msg)
                 raise QdrantMigrationError(error_msg)
 
-            logger.info(
-                f"Qdrant: Migration completed successfully: {migrated_count} records migrated"
-            )
+            logger.info(f"Qdrant: Migration completed successfully: {migrated_count} records migrated")
 
             # Create payload index after successful migration
             logger.info("Qdrant: Creating workspace payload index...")
@@ -257,9 +241,7 @@ class QdrantVectorDBStorage(BaseVectorStorage):
                     is_tenant=True,
                 ),
             )
-            logger.info(
-                f"Qdrant: Migration from '{legacy_namespace}' to '{collection_name}' completed successfully"
-            )
+            logger.info(f"Qdrant: Migration from '{legacy_namespace}' to '{collection_name}' completed successfully")
 
         except QdrantMigrationError:
             # Re-raise migration errors without wrapping
@@ -276,16 +258,12 @@ class QdrantVectorDBStorage(BaseVectorStorage):
         if qdrant_workspace and qdrant_workspace.strip():
             # Use environment variable value, overriding the passed workspace parameter
             effective_workspace = qdrant_workspace.strip()
-            logger.info(
-                f"Using QDRANT_WORKSPACE environment variable: '{effective_workspace}' (overriding passed workspace: '{self.workspace}')"
-            )
+            logger.info(f"Using QDRANT_WORKSPACE environment variable: '{effective_workspace}' (overriding passed workspace: '{self.workspace}')")
         else:
             # Use the workspace parameter passed during initialization
             effective_workspace = self.workspace
             if effective_workspace:
-                logger.debug(
-                    f"Using passed workspace parameter: '{effective_workspace}'"
-                )
+                logger.debug(f"Using passed workspace parameter: '{effective_workspace}'")
 
         # Get legacy namespace for data migration from old version
         if effective_workspace:
@@ -298,16 +276,12 @@ class QdrantVectorDBStorage(BaseVectorStorage):
         # Use a shared collection with payload-based partitioning (Qdrant's recommended approach)
         # Ref: https://qdrant.tech/documentation/guides/multiple-partitions/
         self.final_namespace = f"lightrag_vdb_{self.namespace}"
-        logger.debug(
-            f"Using shared collection '{self.final_namespace}' with workspace '{self.effective_workspace}' for payload-based partitioning"
-        )
+        logger.debug(f"Using shared collection '{self.final_namespace}' with workspace '{self.effective_workspace}' for payload-based partitioning")
 
         kwargs = self.global_config.get("vector_db_storage_cls_kwargs", {})
         cosine_threshold = kwargs.get("cosine_better_than_threshold")
         if cosine_threshold is None:
-            raise ValueError(
-                "cosine_better_than_threshold must be specified in vector_db_storage_cls_kwargs"
-            )
+            raise ValueError("cosine_better_than_threshold must be specified in vector_db_storage_cls_kwargs")
         self.cosine_better_than_threshold = cosine_threshold
 
         # Initialize client as None - will be created in initialize() method
@@ -362,11 +336,10 @@ class QdrantVectorDBStorage(BaseVectorStorage):
         logger.debug(f"[{self.workspace}] Inserting {len(data)} to {self.namespace}")
         if not data:
             return
-
+        
+        # 准备元数据，包括工作空间ID、创建时间等 
         import time
-
         current_time = int(time.time())
-
         list_data = [
             {
                 ID_FIELD: k,
@@ -376,43 +349,38 @@ class QdrantVectorDBStorage(BaseVectorStorage):
             }
             for k, v in data.items()
         ]
+        
+        # # 提取内容用于embedding 
         contents = [v["content"] for v in data.values()]
-        batches = [
-            contents[i : i + self._max_batch_size]
-            for i in range(0, len(contents), self._max_batch_size)
-        ]
 
+        # 将内容分批处理 
+        batches = [contents[i : i + self._max_batch_size] for i in range(0, len(contents), self._max_batch_size)]
+
+        # # 并发执行embedding任务  
         embedding_tasks = [self.embedding_func(batch) for batch in batches]
         embeddings_list = await asyncio.gather(*embedding_tasks)
-
+        # 合并所有embedding结果  
         embeddings = np.concatenate(embeddings_list)
 
+        # 构建Qdrant点结构  
         list_points = []
         for i, d in enumerate(list_data):
             list_points.append(
                 models.PointStruct(
-                    id=compute_mdhash_id_for_qdrant(
-                        d[ID_FIELD], prefix=self.effective_workspace
-                    ),
+                    id=compute_mdhash_id_for_qdrant(d[ID_FIELD], prefix=self.effective_workspace),
                     vector=embeddings[i],
                     payload=d,
                 )
             )
 
-        results = self._client.upsert(
-            collection_name=self.final_namespace, points=list_points, wait=True
-        )
+        results = self._client.upsert(collection_name=self.final_namespace, points=list_points, wait=True)
         return results
 
-    async def query(
-        self, query: str, top_k: int, query_embedding: list[float] = None
-    ) -> list[dict[str, Any]]:
+    async def query(self, query: str, top_k: int, query_embedding: list[float] = None) -> list[dict[str, Any]]:
         if query_embedding is not None:
             embedding = query_embedding
         else:
-            embedding_result = await self.embedding_func(
-                [query], _priority=5
-            )  # higher priority for query
+            embedding_result = await self.embedding_func([query], _priority=5)  # higher priority for query
             embedding = embedding_result[0]
 
         results = self._client.query_points(
@@ -421,9 +389,7 @@ class QdrantVectorDBStorage(BaseVectorStorage):
             limit=top_k,
             with_payload=True,
             score_threshold=self.cosine_better_than_threshold,
-            query_filter=models.Filter(
-                must=[workspace_filter_condition(self.effective_workspace)]
-            ),
+            query_filter=models.Filter(must=[workspace_filter_condition(self.effective_workspace)]),
         ).points
 
         return [
@@ -440,8 +406,7 @@ class QdrantVectorDBStorage(BaseVectorStorage):
         pass
 
     async def delete(self, ids: List[str]) -> None:
-        """Delete vectors with specified IDs
-
+        """ Delete vectors with specified IDs
         Args:
             ids: List of vector IDs to be deleted
         """
@@ -460,26 +425,19 @@ class QdrantVectorDBStorage(BaseVectorStorage):
                 points_selector=models.PointIdsList(points=qdrant_ids),
                 wait=True,
             )
-            logger.debug(
-                f"[{self.workspace}] Successfully deleted {len(ids)} vectors from {self.namespace}"
-            )
+            logger.debug(f"[{self.workspace}] Successfully deleted {len(ids)} vectors from {self.namespace}")
         except Exception as e:
-            logger.error(
-                f"[{self.workspace}] Error while deleting vectors from {self.namespace}: {e}"
-            )
+            logger.error(f"[{self.workspace}] Error while deleting vectors from {self.namespace}: {e}")
 
     async def delete_entity(self, entity_name: str) -> None:
-        """Delete an entity by name
-
+        """ Delete an entity by name
         Args:
             entity_name: Name of the entity to delete
         """
         try:
             # Generate the entity ID using the same function as used for storage
             entity_id = compute_mdhash_id(entity_name, prefix=ENTITY_PREFIX)
-            qdrant_entity_id = compute_mdhash_id_for_qdrant(
-                entity_id, prefix=self.effective_workspace
-            )
+            qdrant_entity_id = compute_mdhash_id_for_qdrant(entity_id, prefix=self.effective_workspace)
 
             # Delete the entity point by its Qdrant ID directly
             self._client.delete(
@@ -487,15 +445,12 @@ class QdrantVectorDBStorage(BaseVectorStorage):
                 points_selector=models.PointIdsList(points=[qdrant_entity_id]),
                 wait=True,
             )
-            logger.debug(
-                f"[{self.workspace}] Successfully deleted entity {entity_name}"
-            )
+            logger.debug(f"[{self.workspace}] Successfully deleted entity {entity_name}")
         except Exception as e:
             logger.error(f"[{self.workspace}] Error deleting entity {entity_name}: {e}")
 
     async def delete_entity_relation(self, entity_name: str) -> None:
-        """Delete all relations associated with an entity
-
+        """ Delete all relations associated with an entity
         Args:
             entity_name: Name of the entity whose relations should be deleted
         """
@@ -506,12 +461,8 @@ class QdrantVectorDBStorage(BaseVectorStorage):
                 scroll_filter=models.Filter(
                     must=[workspace_filter_condition(self.effective_workspace)],
                     should=[
-                        models.FieldCondition(
-                            key="src_id", match=models.MatchValue(value=entity_name)
-                        ),
-                        models.FieldCondition(
-                            key="tgt_id", match=models.MatchValue(value=entity_name)
-                        ),
+                        models.FieldCondition(key="src_id", match=models.MatchValue(value=entity_name)),
+                        models.FieldCondition(key="tgt_id", match=models.MatchValue(value=entity_name)),
                     ],
                 ),
                 with_payload=True,
@@ -530,24 +481,16 @@ class QdrantVectorDBStorage(BaseVectorStorage):
                     points_selector=models.PointIdsList(points=ids_to_delete),
                     wait=True,
                 )
-                logger.debug(
-                    f"[{self.workspace}] Deleted {len(ids_to_delete)} relations for {entity_name}"
-                )
+                logger.debug(f"[{self.workspace}] Deleted {len(ids_to_delete)} relations for {entity_name}")
             else:
-                logger.debug(
-                    f"[{self.workspace}] No relations found for entity {entity_name}"
-                )
+                logger.debug(f"[{self.workspace}] No relations found for entity {entity_name}")
         except Exception as e:
-            logger.error(
-                f"[{self.workspace}] Error deleting relations for {entity_name}: {e}"
-            )
+            logger.error(f"[{self.workspace}] Error deleting relations for {entity_name}: {e}")
 
     async def get_by_id(self, id: str) -> dict[str, Any] | None:
-        """Get vector data by its ID
-
+        """ Get vector data by its ID
         Args:
             id: The unique identifier of the vector
-
         Returns:
             The vector data if found, or None if not found
         """
@@ -573,30 +516,24 @@ class QdrantVectorDBStorage(BaseVectorStorage):
 
             return payload
         except Exception as e:
-            logger.error(
-                f"[{self.workspace}] Error retrieving vector data for ID {id}: {e}"
-            )
+            logger.error(f"[{self.workspace}] Error retrieving vector data for ID {id}: {e}")
             return None
 
     async def get_by_ids(self, ids: list[str]) -> list[dict[str, Any]]:
-        """Get multiple vector data by their IDs
-
+        """ Get multiple vector data by their IDs
         Args:
             ids: List of unique identifiers
-
         Returns:
             List of vector data objects that were found
         """
         if not ids:
             return []
-
         try:
             # Convert to Qdrant compatible IDs
             qdrant_ids = [
                 compute_mdhash_id_for_qdrant(id, prefix=self.effective_workspace)
                 for id in ids
             ]
-
             # Retrieve the points by IDs
             results = self._client.retrieve(
                 collection_name=self.final_namespace,
@@ -630,24 +567,19 @@ class QdrantVectorDBStorage(BaseVectorStorage):
 
             return ordered_payloads
         except Exception as e:
-            logger.error(
-                f"[{self.workspace}] Error retrieving vector data for IDs {ids}: {e}"
-            )
+            logger.error(f"[{self.workspace}] Error retrieving vector data for IDs {ids}: {e}")
             return []
 
     async def get_vectors_by_ids(self, ids: list[str]) -> dict[str, list[float]]:
-        """Get vectors by their IDs, returning only ID and vector data for efficiency
-
+        """ Get vectors by their IDs, returning only ID and vector data for efficiency
         Args:
             ids: List of unique identifiers
-
         Returns:
             Dictionary mapping IDs to their vector embeddings
             Format: {id: [vector_values], ...}
         """
         if not ids:
             return {}
-
         try:
             # Convert to Qdrant compatible IDs
             qdrant_ids = [
@@ -677,16 +609,12 @@ class QdrantVectorDBStorage(BaseVectorStorage):
 
             return vectors_dict
         except Exception as e:
-            logger.error(
-                f"[{self.workspace}] Error retrieving vectors by IDs from {self.namespace}: {e}"
-            )
+            logger.error(f"[{self.workspace}] Error retrieving vectors by IDs from {self.namespace}: {e}")
             return {}
 
     async def drop(self) -> dict[str, str]:
-        """Drop all vector data from storage and clean up resources
-
+        """ Drop all vector data from storage and clean up resources
         This method will delete all data for the current workspace from the Qdrant collection.
-
         Returns:
             dict[str, str]: Operation status and message
             - On success: {"status": "success", "message": "data dropped"}
@@ -704,13 +632,8 @@ class QdrantVectorDBStorage(BaseVectorStorage):
                 ),
                 wait=True,
             )
-
-            logger.info(
-                f"[{self.workspace}] Process {os.getpid()} dropped workspace data from Qdrant collection {self.namespace}"
-            )
+            logger.info(f"[{self.workspace}] Process {os.getpid()} dropped workspace data from Qdrant collection {self.namespace}")
             return {"status": "success", "message": "data dropped"}
         except Exception as e:
-            logger.error(
-                f"[{self.workspace}] Error dropping workspace data from Qdrant collection {self.namespace}: {e}"
-            )
+            logger.error(f"[{self.workspace}] Error dropping workspace data from Qdrant collection {self.namespace}: {e}")
             return {"status": "error", "message": str(e)}

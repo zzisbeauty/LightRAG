@@ -192,9 +192,7 @@ async def ollama_embed(texts: list[str], embed_model, **kwargs) -> np.ndarray:
     ollama_client = ollama.AsyncClient(host=host, timeout=timeout, headers=headers)
     try:
         options = kwargs.pop("options", {})
-        data = await ollama_client.embed(
-            model=embed_model, input=texts, options=options
-        )
+        data = await ollama_client.embed(model=embed_model, input=texts, options=options)
         return np.array(data["embeddings"])
     except Exception as e:
         logger.error(f"Error in ollama_embed: {str(e)}")
@@ -202,9 +200,7 @@ async def ollama_embed(texts: list[str], embed_model, **kwargs) -> np.ndarray:
             await ollama_client._client.aclose()
             logger.debug("Successfully closed Ollama client after exception in embed")
         except Exception as close_error:
-            logger.warning(
-                f"Failed to close Ollama client after exception in embed: {close_error}"
-            )
+            logger.warning(f"Failed to close Ollama client after exception in embed: {close_error}")
         raise e
     finally:
         try:
@@ -212,3 +208,4 @@ async def ollama_embed(texts: list[str], embed_model, **kwargs) -> np.ndarray:
             logger.debug("Successfully closed Ollama client after embed")
         except Exception as close_error:
             logger.warning(f"Failed to close Ollama client after embed: {close_error}")
+

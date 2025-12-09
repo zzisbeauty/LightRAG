@@ -1,0 +1,205 @@
+<?xml version='1.0' encoding='utf-8'?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd"><key id="d13" for="edge" attr.name="truncate" attr.type="string"/>
+<key id="d12" for="edge" attr.name="created_at" attr.type="long"/>
+<key id="d11" for="edge" attr.name="file_path" attr.type="string"/>
+<key id="d10" for="edge" attr.name="source_id" attr.type="string"/>
+<key id="d9" for="edge" attr.name="keywords" attr.type="string"/>
+<key id="d8" for="edge" attr.name="description" attr.type="string"/>
+<key id="d7" for="edge" attr.name="weight" attr.type="double"/>
+<key id="d6" for="node" attr.name="truncate" attr.type="string"/>
+<key id="d5" for="node" attr.name="created_at" attr.type="long"/>
+<key id="d4" for="node" attr.name="file_path" attr.type="string"/>
+<key id="d3" for="node" attr.name="source_id" attr.type="string"/>
+<key id="d2" for="node" attr.name="description" attr.type="string"/>
+<key id="d1" for="node" attr.name="entity_type" attr.type="string"/>
+<key id="d0" for="node" attr.name="entity_id" attr.type="string"/>
+<graph edgedefault="undirected"><node id="The Narrator">
+  <data key="d0">The Narrator</data>
+  <data key="d1">person</data>
+  <data key="d2">The Narrator is the anonymous author who describes their childhood experiences with family rules and the lessons learned from their parents.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Mother">
+  <data key="d0">Mother</data>
+  <data key="d1">person</data>
+  <data key="d2">Mother is the parent who enforced family rules and taught the Narrator about the importance of polite speech and responsible behavior.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Neighbor">
+  <data key="d0">Neighbor</data>
+  <data key="d1">person</data>
+  <data key="d2">Neighbor is the person who reported the Narrator's vulgar language to the parents after the incident at age 4.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Classmate">
+  <data key="d0">Classmate</data>
+  <data key="d1">person</data>
+  <data key="d2">Classmate is the school friend who was hit by the Narrator after the Narrator broke their remote control.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Lian Po">
+  <data key="d0">Lian Po</data>
+  <data key="d1">person</data>
+  <data key="d2">Lian Po is a historical Chinese general known for his willingness to apologize and correct his mistakes.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Lin Xiang Ru">
+  <data key="d0">Lin Xiang Ru</data>
+  <data key="d1">person</data>
+  <data key="d2">Lin Xiang Ru is a historical Chinese official known for his willingness to apologize and correct his mistakes.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Family Rules">
+  <data key="d0">Family Rules</data>
+  <data key="d1">concept</data>
+  <data key="d2">Family Rules are the invisible guidelines that the Narrator's parents instilled, focusing on polite speech, responsible behavior, and taking accountability.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Model Airplane">
+  <data key="d0">Model Airplane</data>
+  <data key="d1">artifact</data>
+  <data key="d2">Model Airplane is the toy that the Narrator broke during the incident at age 8.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Remote Control">
+  <data key="d0">Remote Control</data>
+  <data key="d1">artifact</data>
+  <data key="d2">Remote Control is the device used to operate the Model Airplane, which was broken during the incident at age 8.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Age 4 Incident">
+  <data key="d0">Age 4 Incident</data>
+  <data key="d1">event</data>
+  <data key="d2">Age 4 Incident refers to the event where the Narrator used a vulgar word and was punished by the family.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<node id="Age 8 Incident">
+  <data key="d0">Age 8 Incident</data>
+  <data key="d1">event</data>
+  <data key="d2">Age 8 Incident refers to the event where the Narrator broke the Model Airplane and hit the Classmate, leading to an apology.</data>
+  <data key="d3">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d4">unknown_source</data>
+  <data key="d5">1765171753</data>
+  <data key="d6"></data>
+</node>
+<edge source="The Narrator" target="Family Rules">
+  <data key="d7">1.0</data>
+  <data key="d8">Family Rules influenced the Narrator's behavior and understanding of responsibility.</data>
+  <data key="d9">behavioral influence,rule adherence</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171754</data>
+  <data key="d13"></data>
+</edge>
+<edge source="The Narrator" target="Age 4 Incident">
+  <data key="d7">1.0</data>
+  <data key="d8">The Narrator was involved in the Age 4 Incident by using a vulgar word.</data>
+  <data key="d9">childhood incident,language misuse</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171754</data>
+  <data key="d13"></data>
+</edge>
+<edge source="The Narrator" target="Mother">
+  <data key="d7">1.0</data>
+  <data key="d8">The Mother punished the Narrator for the Age 4 Incident and taught the importance of polite speech.</data>
+  <data key="d9">behavior correction,parental discipline</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171754</data>
+  <data key="d13"></data>
+</edge>
+<edge source="The Narrator" target="Age 8 Incident">
+  <data key="d7">1.0</data>
+  <data key="d8">The Narrator was involved in the Age 8 Incident by breaking the Model Airplane and hitting the Classmate.</data>
+  <data key="d9">behavioral consequence,childhood accident</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171754</data>
+  <data key="d13"></data>
+</edge>
+<edge source="The Narrator" target="Lian Po">
+  <data key="d7">1.0</data>
+  <data key="d8">The Narrator learned about Lian Po as part of the parents' lesson on taking responsibility for mistakes.</data>
+  <data key="d9">historical lesson,responsibility</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171754</data>
+  <data key="d13"></data>
+</edge>
+<edge source="The Narrator" target="Lin Xiang Ru">
+  <data key="d7">1.0</data>
+  <data key="d8">The Narrator learned about Lin Xiang Ru as part of the parents' lesson on taking responsibility for mistakes.</data>
+  <data key="d9">historical lesson,responsibility</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171756</data>
+  <data key="d13"></data>
+</edge>
+<edge source="Mother" target="Age 8 Incident">
+  <data key="d7">1.0</data>
+  <data key="d8">The Mother facilitated the apology process for the Age 8 Incident by involving the Narrator in learning about Lian Po and Lin Xiang Ru.</data>
+  <data key="d9">apology,responsibility</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171756</data>
+  <data key="d13"></data>
+</edge>
+<edge source="Neighbor" target="Age 4 Incident">
+  <data key="d7">1.0</data>
+  <data key="d8">The Neighbor reported the Narrator's vulgar language to the Mother after the incident.</data>
+  <data key="d9">community interaction,reporting</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171754</data>
+  <data key="d13"></data>
+</edge>
+<edge source="Neighbor" target="Age 8 Incident">
+  <data key="d7">1.0</data>
+  <data key="d8">The Neighbor reported the Age 8 Incident to the Mother and the Narrator's parents.</data>
+  <data key="d9">community involvement,reporting</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171756</data>
+  <data key="d13"></data>
+</edge>
+<edge source="Classmate" target="Age 8 Incident">
+  <data key="d7">1.0</data>
+  <data key="d8">The Classmate was hit by the Narrator during the Age 8 Incident, leading to an apology.</data>
+  <data key="d9">conflict,reconciliation</data>
+  <data key="d10">chunk-ab8a95ed6d7eefaf27d51032137c6a13</data>
+  <data key="d11">unknown_source</data>
+  <data key="d12">1765171754</data>
+  <data key="d13"></data>
+</edge>
+</graph></graphml>

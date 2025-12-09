@@ -396,7 +396,7 @@ class UnlimitedSemaphore:
 
 @dataclass
 class TaskState:
-    """Task state tracking for priority queue management"""
+    """ Task state tracking for priority queue management """
 
     future: asyncio.Future
     start_time: float
@@ -422,9 +422,8 @@ class EmbeddingFunc:
     embedding_dim: int
     func: callable
     max_token_size: int | None = None  # Token limit for the embedding model
-    send_dimensions: bool = (
-        False  # Control whether to send embedding_dim to the function
-    )
+    # Control whether to send embedding_dim to the function
+    send_dimensions: bool = (False)
 
     async def __call__(self, *args, **kwargs) -> np.ndarray:
         # Only inject embedding_dim when send_dimensions is True
@@ -437,10 +436,7 @@ class EmbeddingFunc:
                     user_provided_dim is not None
                     and user_provided_dim != self.embedding_dim
                 ):
-                    logger.warning(
-                        f"Ignoring user-provided embedding_dim={user_provided_dim}, "
-                        f"using declared embedding_dim={self.embedding_dim} from decorator"
-                    )
+                    logger.warning(f"Ignoring user-provided embedding_dim={user_provided_dim}, using declared embedding_dim={self.embedding_dim} from decorator")
 
             # Inject embedding_dim from decorator
             kwargs["embedding_dim"] = self.embedding_dim
@@ -454,21 +450,14 @@ class EmbeddingFunc:
 
         # Check if total elements can be evenly divided by embedding_dim
         if total_elements % expected_dim != 0:
-            raise ValueError(
-                f"Embedding dimension mismatch detected: "
-                f"total elements ({total_elements}) cannot be evenly divided by "
-                f"expected dimension ({expected_dim}). "
-            )
+            raise ValueError(f"Embedding dimension mismatch detected: total elements ({total_elements}) cannot be evenly divided by expected dimension ({expected_dim}).")
 
         # Optional: Verify vector count matches input text count
         actual_vectors = total_elements // expected_dim
         if args and isinstance(args[0], (list, tuple)):
             expected_vectors = len(args[0])
             if actual_vectors != expected_vectors:
-                raise ValueError(
-                    f"Vector count mismatch: "
-                    f"expected {expected_vectors} vectors but got {actual_vectors} vectors (from embedding result)."
-                )
+                raise ValueError(f"Vector count mismatch: expected {expected_vectors} vectors but got {actual_vectors} vectors (from embedding result).")
 
         return result
 
@@ -554,9 +543,7 @@ class HealthCheckTimeoutError(Exception):
     def __init__(self, timeout_value: float, execution_duration: float):
         self.timeout_value = timeout_value
         self.execution_duration = execution_duration
-        super().__init__(
-            f"Task forcefully terminated due to execution timeout (>{timeout_value}s, actual: {execution_duration:.1f}s)"
-        )
+        super().__init__(f"Task forcefully terminated due to execution timeout (>{timeout_value}s, actual: {execution_duration:.1f}s)")
 
 
 def priority_limit_async_func_call(

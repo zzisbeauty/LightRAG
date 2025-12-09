@@ -1247,18 +1247,13 @@ def initialize_share_data(workers: int = 1):
 
 
 async def initialize_pipeline_status(workspace: str | None = None):
-    """
-    Initialize pipeline_status share data with default values.
-    This function could be called before during FASTAPI lifespan for each worker.
-
+    """ Initialize pipeline_status share data with default values.
+        This function could be called before during FASTAPI lifespan for each worker.
     Args:
         workspace: Optional workspace identifier for pipeline_status of specific workspace.
-                   If None or empty string, uses the default workspace set by
-                   set_default_workspace().
+                   If None or empty string, uses the default workspace set by set_default_workspace().
     """
-    pipeline_namespace = await get_namespace_data(
-        "pipeline_status", first_init=True, workspace=workspace
-    )
+    pipeline_namespace = await get_namespace_data("pipeline_status", first_init=True, workspace=workspace)
 
     async with get_internal_lock():
         # Check if already initialized by checking for required fields
@@ -1283,9 +1278,7 @@ async def initialize_pipeline_status(workspace: str | None = None):
         )
 
         final_namespace = get_final_namespace("pipeline_status", workspace)
-        direct_log(
-            f"Process {os.getpid()} Pipeline namespace '{final_namespace}' initialized"
-        )
+        direct_log(f"Process {os.getpid()} Pipeline namespace '{final_namespace}' initialized")
 
 
 async def get_update_flag(namespace: str, workspace: str | None = None):

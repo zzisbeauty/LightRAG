@@ -10,12 +10,11 @@
 
 ### 系统概述
 
-系统结构以及优势：是我的产品特点（总）
+~~系统结构以及优势：是我的产品特点（总）~~
+~~https://deepwiki.com/search/-1-rag-2-3-rag-4-rag_af4b2520-5ce4-496c-8b45-7c768d37ff3c?mode=fast#1~~
 
-https://deepwiki.com/search/-1-rag-2-3-rag-4-rag_af4b2520-5ce4-496c-8b45-7c768d37ff3c?mode=fast#1
 
-
-### 基于 uvicorn +  fastapi 的 web server 搭建
+### 基于 uvicorn  +  fastapi 的 web server 搭建
 
 - fastAPI https://gemini.google.com/app/8b675cc37a33be51
 
