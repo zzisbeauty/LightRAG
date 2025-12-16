@@ -1,0 +1,26 @@
+version: '3.9'
+
+services:
+  lightrag:                                       # 服务名
+    build:
+      context: .
+      dockerfile: Dockerfile.dev        # 使用开发阶段 Dockerfile
+    container_name: lightrag          # 容器名为项目名
+
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+
+    volumes:
+      # 需要修改项目名称
+      - /home/nvidia/Desktop/volumes-codes/lightrag:/workspace/lightrag:ro
+      - /home/nvidia/Desktop/volumes-cache:/workspace/cache
+      - /home/nvidia/Desktop/volumes-datas:/workspace/data
+      - /home/nvidia/Desktop/volumes-models:/workspace/models
+      # 其他挂载
+      # - 
+
+    tty: true
+    stdin_open: true
+    restart: "no"                       # 默认不自动启动
+    # restart: always                # 开机自动启动(可选)
