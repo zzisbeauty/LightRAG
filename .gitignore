@@ -10,6 +10,9 @@ __pycache__/
 # Virtual Environment
 .venv/
 venv/
+lightrag_hku.egg-info
+
+
 
 # Enviroment Variable Files
 .env

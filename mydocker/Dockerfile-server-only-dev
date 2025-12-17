@@ -1,0 +1,80 @@
+# syntax=docker/dockerfile:1  
+  
+# 仅后端 - 使用 miniconda  
+FROM miniconda:std  
+  
+WORKDIR /app  
+  
+
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG http_proxy
+ARG https_proxy
+ENV HTTP_PROXY=${HTTP_PROXY}
+ENV HTTPS_PROXY=${HTTPS_PROXY}
+ENV http_proxy=${http_proxy}
+ENV https_proxy=${https_proxy}
+
+
+
+# 设置国内镜像  
+ENV UV_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple  
+ENV PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple  
+  
+# 安装 uv  
+# RUN pip install uv -i https://pypi.tuna.tsinghua.edu.cn/simple  
+# RUN pip install httpx -i https://pypi.tuna.tsinghua.edu.cn/simple  
+
+# # 创建并激活 conda 环境  
+# RUN conda create -n light python=3.12 -y && \  
+#     echo "conda activate light" >> ~/.bashrc  
+# RUN conda install -n light -c conda-forge uv httpx -y
+# ENV PATH=/opt/conda/envs/light/bin:$PATH  
+# ENV CONDA_DEFAULT_ENV=light  
+  
+# 安装系统依赖  
+RUN apt-get update \  
+    && apt-get install -y --no-install-recommends \  
+        curl \  
+        build-essential \  
+        pkg-config \  
+    && rm -rf /var/lib/apt/lists/* \  
+    && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y  
+
+ENV PATH="/root/.cargo/bin:$PATH"  
+
+
+#  不在这里配置环境；进入容器后手动安装
+
+# # 复制项目文件  
+# COPY pyproject.toml .  
+# COPY setup.py .  
+# COPY uv.lock .  
+# # 安装依赖  
+# RUN --mount=type=cache,target=/root/.cache/uv \  
+#     uv sync --frozen --no-dev --extra api --no-editable \  
+#     && python -m ensurepip --upgrade  
+
+
+# COPY lightrag/ ./lightrag/  
+# # 第二次安装：安装项目本身 - 会把源码复制到 site-packages 中
+# # RUN --mount=type=cache,target=/root/.cache/uv \  
+# #     uv sync --frozen --no-dev --extra api --no-editable
+# # 最后一次安装改为编辑模式  
+# RUN --mount=type=cache,target=/root/.cache/uv \  
+#     uv sync --frozen --no-dev --extra api --editable
+
+
+# 创建工作目录  
+RUN mkdir -p /workspace/lightrag /workspace/cache /workspace/data /workspace/models  
+  
+# 环境变量  
+ENV WORKING_DIR=/workspace/data  
+ENV INPUT_DIR=/workspace/data  
+ENV TIKTOKEN_CACHE_DIR=/workspace/cache  
+  
+EXPOSE 9621  
+  
+# ENTRYPOINT ["python", "-m", "lightrag.api.lightrag_server"]
+# 修改为保持容器运行的命令  
+ENTRYPOINT ["/bin/bash", "-c", "tail -f /dev/null"]

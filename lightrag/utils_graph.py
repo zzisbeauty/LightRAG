@@ -77,9 +77,7 @@ async def adelete_by_entity(
     # Use keyed lock for entity to ensure atomic graph and vector db operations
     workspace = entities_vdb.global_config.get("workspace", "")
     namespace = f"{workspace}:GraphDB" if workspace else "GraphDB"
-    async with get_storage_keyed_lock(
-        [entity_name], namespace=namespace, enable_logging=False
-    ):
+    async with get_storage_keyed_lock([entity_name], namespace=namespace, enable_logging=False):
         try:
             # Check if the entity exists
             if not await chunk_entity_relation_graph.has_node(entity_name):

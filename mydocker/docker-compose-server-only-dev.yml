@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  lightrag:
+    image: lightrag:dev        # build 后的镜像名
+    build:
+      context: ..
+      dockerfile: mydocker/Dockerfile-server-only-dev
+      args:
+        HTTP_PROXY: http://172.17.0.1:7890
+        HTTPS_PROXY: http://172.17.0.1:7890
+        http_proxy: http://172.17.0.1:7890
+        https_proxy: http://172.17.0.1:7890
+
+
+    container_name: lightrag
+    restart: always
+
+    runtime: nvidia
+    environment:
+      - HTTP_PROXY=http://host.docker.internal:7890
+      - HTTPS_PROXY=http://host.docker.internal:7890
+      - http_proxy=http://host.docker.internal:7890
+      - https_proxy=http://host.docker.internal:7890
+      - NVIDIA_VISIBLE_DEVICES=all
+      - UV_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+      - PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+      - WORKING_DIR=/workspace/data
+      - INPUT_DIR=/workspace/data
+      - TIKTOKEN_CACHE_DIR=/workspace/cache
+
+    volumes:
+      - /home/nvidia/Desktop/volumes-codes/lightrag:/workspace/lightrag:rw
+      - /home/nvidia/Desktop/volumes-cache:/workspace/cache
+      - /home/nvidia/Desktop/volumes-datas:/workspace/data
+      - /home/nvidia/Desktop/volumes-models:/workspace/models
+
+    ports:
+      - "9621:9621"
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+
+
+# docker compose -f ./mydocker/docker-compose-server-only-dev.yml up --build -d     # 重构再加 --force-recreat
