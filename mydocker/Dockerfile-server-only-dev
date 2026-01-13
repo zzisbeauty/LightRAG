@@ -44,7 +44,7 @@ RUN apt-get update \
 ENV PATH="/root/.cargo/bin:$PATH"  
 
 
-#  不在这里配置环境；进入容器后手动安装
+# 不在这里配置环境；进入容器后手动安装
 
 # # 复制项目文件  
 # COPY pyproject.toml .  

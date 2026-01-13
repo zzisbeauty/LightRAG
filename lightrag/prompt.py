@@ -8,96 +8,178 @@ PROMPTS: dict[str, Any] = {}
 PROMPTS["DEFAULT_TUPLE_DELIMITER"] = "<|#|>"
 PROMPTS["DEFAULT_COMPLETION_DELIMITER"] = "<|COMPLETE|>"
 
-PROMPTS["entity_extraction_system_prompt"] = """---Role---
-You are a Knowledge Graph Specialist responsible for extracting entities and relationships from the input text.
+# PROMPTS["entity_extraction_system_prompt"] = """---Role---
+# You are a Knowledge Graph Specialist responsible for extracting entities and relationships from the input text.
 
----Instructions---
-1.  **Entity Extraction & Output:**
-    *   **Identification:** Identify clearly defined and meaningful entities in the input text.
-    *   **Entity Details:** For each identified entity, extract the following information:
-        *   `entity_name`: The name of the entity. If the entity name is case-insensitive, capitalize the first letter of each significant word (title case). Ensure **consistent naming** across the entire extraction process.
-        *   `entity_type`: Categorize the entity using one of the following types: `{entity_types}`. If none of the provided entity types apply, do not add new entity type and classify it as `Other`.
-        *   `entity_description`: Provide a concise yet comprehensive description of the entity's attributes and activities, based *solely* on the information present in the input text.
-    *   **Output Format - Entities:** Output a total of 4 fields for each entity, delimited by `{tuple_delimiter}`, on a single line. The first field *must* be the literal string `entity`.
-        *   Format: `entity{tuple_delimiter}entity_name{tuple_delimiter}entity_type{tuple_delimiter}entity_description`
+# ---Instructions---
+# 1.  **Entity Extraction & Output:**
+#     *   **Identification:** Identify clearly defined and meaningful entities in the input text.
+#     *   **Entity Details:** For each identified entity, extract the following information:
+#         *   `entity_name`: The name of the entity. If the entity name is case-insensitive, capitalize the first letter of each significant word (title case). Ensure **consistent naming** across the entire extraction process.
+#         *   `entity_type`: Categorize the entity using one of the following types: `{entity_types}`. If none of the provided entity types apply, do not add new entity type and classify it as `Other`.
+#         *   `entity_description`: Provide a concise yet comprehensive description of the entity's attributes and activities, based *solely* on the information present in the input text.
+#     *   **Output Format - Entities:** Output a total of 4 fields for each entity, delimited by `{tuple_delimiter}`, on a single line. The first field *must* be the literal string `entity`.
+#         *   Format: `entity{tuple_delimiter}entity_name{tuple_delimiter}entity_type{tuple_delimiter}entity_description`
 
-2.  **Relationship Extraction & Output:**
-    *   **Identification:** Identify direct, clearly stated, and meaningful relationships between previously extracted entities.
-    *   **N-ary Relationship Decomposition:** If a single statement describes a relationship involving more than two entities (an N-ary relationship), decompose it into multiple binary (two-entity) relationship pairs for separate description.
-        *   **Example:** For "Alice, Bob, and Carol collaborated on Project X," extract binary relationships such as "Alice collaborated with Project X," "Bob collaborated with Project X," and "Carol collaborated with Project X," or "Alice collaborated with Bob," based on the most reasonable binary interpretations.
-    *   **Relationship Details:** For each binary relationship, extract the following fields:
-        *   `source_entity`: The name of the source entity. Ensure **consistent naming** with entity extraction. Capitalize the first letter of each significant word (title case) if the name is case-insensitive.
-        *   `target_entity`: The name of the target entity. Ensure **consistent naming** with entity extraction. Capitalize the first letter of each significant word (title case) if the name is case-insensitive.
-        *   `relationship_keywords`: One or more high-level keywords summarizing the overarching nature, concepts, or themes of the relationship. Multiple keywords within this field must be separated by a comma `,`. **DO NOT use `{tuple_delimiter}` for separating multiple keywords within this field.**
-        *   `relationship_description`: A concise explanation of the nature of the relationship between the source and target entities, providing a clear rationale for their connection.
-    *   **Output Format - Relationships:** Output a total of 5 fields for each relationship, delimited by `{tuple_delimiter}`, on a single line. The first field *must* be the literal string `relation`.
-        *   Format: `relation{tuple_delimiter}source_entity{tuple_delimiter}target_entity{tuple_delimiter}relationship_keywords{tuple_delimiter}relationship_description`
+# 2.  **Relationship Extraction & Output:**
+#     *   **Identification:** Identify direct, clearly stated, and meaningful relationships between previously extracted entities.
+#     *   **N-ary Relationship Decomposition:** If a single statement describes a relationship involving more than two entities (an N-ary relationship), decompose it into multiple binary (two-entity) relationship pairs for separate description.
+#         *   **Example:** For "Alice, Bob, and Carol collaborated on Project X," extract binary relationships such as "Alice collaborated with Project X," "Bob collaborated with Project X," and "Carol collaborated with Project X," or "Alice collaborated with Bob," based on the most reasonable binary interpretations.
+#     *   **Relationship Details:** For each binary relationship, extract the following fields:
+#         *   `source_entity`: The name of the source entity. Ensure **consistent naming** with entity extraction. Capitalize the first letter of each significant word (title case) if the name is case-insensitive.
+#         *   `target_entity`: The name of the target entity. Ensure **consistent naming** with entity extraction. Capitalize the first letter of each significant word (title case) if the name is case-insensitive.
+#         *   `relationship_keywords`: One or more high-level keywords summarizing the overarching nature, concepts, or themes of the relationship. Multiple keywords within this field must be separated by a comma `,`. **DO NOT use `{tuple_delimiter}` for separating multiple keywords within this field.**
+#         *   `relationship_description`: A concise explanation of the nature of the relationship between the source and target entities, providing a clear rationale for their connection.
+#     *   **Output Format - Relationships:** Output a total of 5 fields for each relationship, delimited by `{tuple_delimiter}`, on a single line. The first field *must* be the literal string `relation`.
+#         *   Format: `relation{tuple_delimiter}source_entity{tuple_delimiter}target_entity{tuple_delimiter}relationship_keywords{tuple_delimiter}relationship_description`
 
-3.  **Delimiter Usage Protocol:**
-    *   The `{tuple_delimiter}` is a complete, atomic marker and **must not be filled with content**. It serves strictly as a field separator.
-    *   **Incorrect Example:** `entity{tuple_delimiter}Tokyo<|location|>Tokyo is the capital of Japan.`
-    *   **Correct Example:** `entity{tuple_delimiter}Tokyo{tuple_delimiter}location{tuple_delimiter}Tokyo is the capital of Japan.`
+# 3.  **Delimiter Usage Protocol:**
+#     *   The `{tuple_delimiter}` is a complete, atomic marker and **must not be filled with content**. It serves strictly as a field separator.
+#     *   **Incorrect Example:** `entity{tuple_delimiter}Tokyo<|location|>Tokyo is the capital of Japan.`
+#     *   **Correct Example:** `entity{tuple_delimiter}Tokyo{tuple_delimiter}location{tuple_delimiter}Tokyo is the capital of Japan.`
 
-4.  **Relationship Direction & Duplication:**
-    *   Treat all relationships as **undirected** unless explicitly stated otherwise. Swapping the source and target entities for an undirected relationship does not constitute a new relationship.
-    *   Avoid outputting duplicate relationships.
+# 4.  **Relationship Direction & Duplication:**
+#     *   Treat all relationships as **undirected** unless explicitly stated otherwise. Swapping the source and target entities for an undirected relationship does not constitute a new relationship.
+#     *   Avoid outputting duplicate relationships.
 
-5.  **Output Order & Prioritization:**
-    *   Output all extracted entities first, followed by all extracted relationships.
-    *   Within the list of relationships, prioritize and output those relationships that are **most significant** to the core meaning of the input text first.
+# 5.  **Output Order & Prioritization:**
+#     *   Output all extracted entities first, followed by all extracted relationships.
+#     *   Within the list of relationships, prioritize and output those relationships that are **most significant** to the core meaning of the input text first.
 
-6.  **Context & Objectivity:**
-    *   Ensure all entity names and descriptions are written in the **third person**.
-    *   Explicitly name the subject or object; **avoid using pronouns** such as `this article`, `this paper`, `our company`, `I`, `you`, and `he/she`.
+# 6.  **Context & Objectivity:**
+#     *   Ensure all entity names and descriptions are written in the **third person**.
+#     *   Explicitly name the subject or object; **avoid using pronouns** such as `this article`, `this paper`, `our company`, `I`, `you`, and `he/she`.
 
-7.  **Language & Proper Nouns:**
-    *   The entire output (entity names, keywords, and descriptions) must be written in `{language}`.
-    *   Proper nouns (e.g., personal names, place names, organization names) should be retained in their original language if a proper, widely accepted translation is not available or would cause ambiguity.
+# 7.  **Language & Proper Nouns:**
+#     *   The entire output (entity names, keywords, and descriptions) must be written in `{language}`.
+#     *   Proper nouns (e.g., personal names, place names, organization names) should be retained in their original language if a proper, widely accepted translation is not available or would cause ambiguity.
 
-8.  **Completion Signal:** Output the literal string `{completion_delimiter}` only after all entities and relationships, following all criteria, have been completely extracted and outputted.
+# 8.  **Completion Signal:** Output the literal string `{completion_delimiter}` only after all entities and relationships, following all criteria, have been completely extracted and outputted.
 
----Examples---
+# ---Examples---
+# {examples}
+# """
+
+PROMPTS["entity_extraction_system_prompt"] = """---角色---
+你是知识图谱专家，负责从文本中提取实体和关系。
+
+---指令---
+1. **实体提取**
+   - 识别文本中清晰定义的实体
+   - 提取信息：
+     * `entity_name`：实体名称（重要词首字母大写，保持命名一致）
+     * `entity_type`：分类为 `{entity_types}` 之一，无匹配则标为 `Other`
+     * `entity_description`：基于文本的简洁描述
+   - 输出格式：`entity{tuple_delimiter}entity_name{tuple_delimiter}entity_type{tuple_delimiter}entity_description`
+
+2. **关系提取**
+   - 识别已提取实体间的直接关系
+   - 多元关系需拆分为多个二元关系（如"甲、乙、丙协作项目X"拆为"甲-项目X"、"乙-项目X"等）
+   - 提取信息：
+     * `source_entity`：源实体名（命名与实体提取一致）
+     * `target_entity`：目标实体名（命名与实体提取一致）
+     * `relationship_keywords`：关系关键词（多个用逗号分隔，**不使用** `{tuple_delimiter}`）
+     * `relationship_description`：关系说明
+   - 输出格式：`relation{tuple_delimiter}source_entity{tuple_delimiter}target_entity{tuple_delimiter}relationship_keywords{tuple_delimiter}relationship_description`
+
+3. **分隔符规则**
+   - `{tuple_delimiter}` 仅作字段分隔符，不可填充内容
+   - 正确示例：`entity{tuple_delimiter}东京{tuple_delimiter}location{tuple_delimiter}日本首都`
+
+4. **其他规则**
+   - 关系视为无向，避免重复
+   - 先输出所有实体，再输出关系（重要关系优先）
+   - 使用第三人称，避免代词（如"本文"、"我"、"你"等）
+   - 输出使用 `{language}`，专有名词保留原文
+   - 完成后输出：`{completion_delimiter}`
+
+---示例---
 {examples}
 """
 
-PROMPTS["entity_extraction_user_prompt"] = """---Task---
-Extract entities and relationships from the input text in Data to be Processed below.
 
----Instructions---
-1.  **Strict Adherence to Format:** Strictly adhere to all format requirements for entity and relationship lists, including output order, field delimiters, and proper noun handling, as specified in the system prompt.
-2.  **Output Content Only:** Output *only* the extracted list of entities and relationships. Do not include any introductory or concluding remarks, explanations, or additional text before or after the list.
-3.  **Completion Signal:** Output `{completion_delimiter}` as the final line after all relevant entities and relationships have been extracted and presented.
-4.  **Output Language:** Ensure the output language is {language}. Proper nouns (e.g., personal names, place names, organization names) must be kept in their original language and not translated.
 
----Data to be Processed---
-<Entity_types>
+# PROMPTS["entity_extraction_user_prompt"] = """---Task---
+# Extract entities and relationships from the input text in Data to be Processed below.
+
+# ---Instructions---
+# 1.  **Strict Adherence to Format:** Strictly adhere to all format requirements for entity and relationship lists, including output order, field delimiters, and proper noun handling, as specified in the system prompt.
+# 2.  **Output Content Only:** Output *only* the extracted list of entities and relationships. Do not include any introductory or concluding remarks, explanations, or additional text before or after the list.
+# 3.  **Completion Signal:** Output `{completion_delimiter}` as the final line after all relevant entities and relationships have been extracted and presented.
+# 4.  **Output Language:** Ensure the output language is {language}. Proper nouns (e.g., personal names, place names, organization names) must be kept in their original language and not translated.
+
+# ---Data to be Processed---
+# <Entity_types>
+# [{entity_types}]
+
+# <Input Text>
+# ```
+# {input_text}
+# ```
+
+# <Output>
+# """
+
+PROMPTS["entity_extraction_user_prompt"] = """---任务---
+从下方输入文本中提取实体和关系。
+
+---指令---
+1. 严格遵循系统提示中的格式要求（输出顺序、字段分隔符、专有名词处理）
+2. 仅输出提取结果，不包含任何说明或额外文字
+3. 完成后输出：`{completion_delimiter}`
+4. 输出语言为 {language}，专有名词保留原文不翻译
+
+---待处理数据---
+<实体类型>
 [{entity_types}]
 
-<Input Text>
+<输入文本>
 ```
 {input_text}
 ```
 
-<Output>
+<输出>
 """
 
-PROMPTS["entity_continue_extraction_user_prompt"] = """---Task---
-Based on the last extraction task, identify and extract any **missed or incorrectly formatted** entities and relationships from the input text.
 
----Instructions---
-1.  **Strict Adherence to System Format:** Strictly adhere to all format requirements for entity and relationship lists, including output order, field delimiters, and proper noun handling, as specified in the system instructions.
-2.  **Focus on Corrections/Additions:**
-    *   **Do NOT** re-output entities and relationships that were **correctly and fully** extracted in the last task.
-    *   If an entity or relationship was **missed** in the last task, extract and output it now according to the system format.
-    *   If an entity or relationship was **truncated, had missing fields, or was otherwise incorrectly formatted** in the last task, re-output the *corrected and complete* version in the specified format.
-3.  **Output Format - Entities:** Output a total of 4 fields for each entity, delimited by `{tuple_delimiter}`, on a single line. The first field *must* be the literal string `entity`.
-4.  **Output Format - Relationships:** Output a total of 5 fields for each relationship, delimited by `{tuple_delimiter}`, on a single line. The first field *must* be the literal string `relation`.
-5.  **Output Content Only:** Output *only* the extracted list of entities and relationships. Do not include any introductory or concluding remarks, explanations, or additional text before or after the list.
-6.  **Completion Signal:** Output `{completion_delimiter}` as the final line after all relevant missing or corrected entities and relationships have been extracted and presented.
-7.  **Output Language:** Ensure the output language is {language}. Proper nouns (e.g., personal names, place names, organization names) must be kept in their original language and not translated.
 
-<Output>
+
+# PROMPTS["entity_continue_extraction_user_prompt"] = """---Task---
+# Based on the last extraction task, identify and extract any **missed or incorrectly formatted** entities and relationships from the input text.
+
+# ---Instructions---
+# 1.  **Strict Adherence to System Format:** Strictly adhere to all format requirements for entity and relationship lists, including output order, field delimiters, and proper noun handling, as specified in the system instructions.
+# 2.  **Focus on Corrections/Additions:**
+#     *   **Do NOT** re-output entities and relationships that were **correctly and fully** extracted in the last task.
+#     *   If an entity or relationship was **missed** in the last task, extract and output it now according to the system format.
+#     *   If an entity or relationship was **truncated, had missing fields, or was otherwise incorrectly formatted** in the last task, re-output the *corrected and complete* version in the specified format.
+# 3.  **Output Format - Entities:** Output a total of 4 fields for each entity, delimited by `{tuple_delimiter}`, on a single line. The first field *must* be the literal string `entity`.
+# 4.  **Output Format - Relationships:** Output a total of 5 fields for each relationship, delimited by `{tuple_delimiter}`, on a single line. The first field *must* be the literal string `relation`.
+# 5.  **Output Content Only:** Output *only* the extracted list of entities and relationships. Do not include any introductory or concluding remarks, explanations, or additional text before or after the list.
+# 6.  **Completion Signal:** Output `{completion_delimiter}` as the final line after all relevant missing or corrected entities and relationships have been extracted and presented.
+# 7.  **Output Language:** Ensure the output language is {language}. Proper nouns (e.g., personal names, place names, organization names) must be kept in their original language and not translated.
+
+# <Output>
+# """
+
+PROMPTS["entity_continue_extraction_user_prompt"] = """---任务---
+基于上次提取，识别并提取任何**遗漏或格式错误**的实体和关系。
+
+---指令---
+1. 严格遵循系统指令中的格式要求
+2. **补充纠正原则：**
+   - **不要**重复输出上次已正确完整提取的内容
+   - 提取上次**遗漏**的实体/关系
+   - 重新输出上次**截断、缺失字段或格式错误**的内容（修正版本）
+3. 实体格式：`entity{tuple_delimiter}名称{tuple_delimiter}类型{tuple_delimiter}描述`（4个字段）
+4. 关系格式：`relation{tuple_delimiter}源实体{tuple_delimiter}目标实体{tuple_delimiter}关键词{tuple_delimiter}描述`（5个字段）
+5. 仅输出提取结果，无其他文字
+6. 完成后输出：`{completion_delimiter}`
+7. 输出语言为 {language}，专有名词保留原文
+
+<输出>
 """
+
 
 PROMPTS["entity_extraction_examples"] = [
     """<Entity_types>
@@ -181,6 +263,14 @@ relation{tuple_delimiter}Noah Carter{tuple_delimiter}World Athletics Championshi
 
 """,
 ]
+
+
+
+
+
+
+
+
 
 PROMPTS["summarize_entity_descriptions"] = """---Role---
 You are a Knowledge Graph Specialist, proficient in data curation and synthesis.

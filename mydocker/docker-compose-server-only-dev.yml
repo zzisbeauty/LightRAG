@@ -41,6 +41,3 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-
-
-# docker compose -f ./mydocker/docker-compose-server-only-dev.yml up --build -d     # 重构再加 --force-recreat

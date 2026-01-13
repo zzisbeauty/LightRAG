@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent))  # 添加项目根目录到 Python 路径
+
+
 import traceback
 import asyncio
 import configparser
@@ -118,11 +123,11 @@ from dotenv import load_dotenv
 # use the .env that is inside the current folder
 # allows to use different .env file for each lightrag instance
 # the OS environment variables take precedence over the .env file
-load_dotenv(dotenv_path=".env", override=False)
+load_dotenv(dotenv_path="/workspace/lightrag/.env", override=False)
 
-# TODO: TO REMOVE @Yannick
-config = configparser.ConfigParser()
-config.read("config.ini", "utf-8")
+# # TODO: TO REMOVE @Yannick
+# config = configparser.ConfigParser()
+# config.read("config.ini", "utf-8")
 
 
 @final
@@ -220,12 +225,11 @@ class LightRAG:
     # Text chunking
     # ---
 
-    chunk_token_size: int = field(default=int(os.getenv("CHUNK_SIZE", 1200)))
+    # chunk_token_size: int = field(default=int(os.getenv("CHUNK_SIZE", 1200)))
+    chunk_token_size: int = field(default=int(os.getenv("CHUNK_SIZE", 600)))
     """Maximum number of tokens per text chunk when splitting documents."""
 
-    chunk_overlap_token_size: int = field(
-        default=int(os.getenv("CHUNK_OVERLAP_SIZE", 100))
-    )
+    chunk_overlap_token_size: int = field(default=int(os.getenv("CHUNK_OVERLAP_SIZE", 100)))
     """Number of overlapping tokens between consecutive text chunks to preserve context."""
 
     tokenizer: Optional[Tokenizer] = field(default=None)
@@ -285,9 +289,7 @@ class LightRAG:
     embedding_batch_num: int = field(default=int(os.getenv("EMBEDDING_BATCH_NUM", 10)))
     """Batch size for embedding computations."""
 
-    embedding_func_max_async: int = field(
-        default=int(os.getenv("EMBEDDING_FUNC_MAX_ASYNC", 8))
-    )
+    embedding_func_max_async: int = field(default=int(os.getenv("EMBEDDING_FUNC_MAX_ASYNC", 8)))
     """Maximum number of concurrent embedding function calls."""
 
     embedding_cache_config: dict[str, Any] = field(
@@ -524,9 +526,7 @@ class LightRAG:
         embedding_max_token_size = None
         if self.embedding_func and hasattr(self.embedding_func, "max_token_size"):
             embedding_max_token_size = self.embedding_func.max_token_size
-            logger.debug(
-                f"Captured embedding max_token_size: {embedding_max_token_size}"
-            )
+            logger.debug(f"Captured embedding max_token_size: {embedding_max_token_size}")
         self.embedding_token_limit = embedding_max_token_size
 
         # Fix global_config now
@@ -1156,8 +1156,8 @@ class LightRAG:
         file_paths: str | list[str] | None = None,
         track_id: str | None = None,
     ) -> str:
-        """Async Insert documents with checkpoint support
-
+        """ 1. 文档处理与存储; 2. 元数据管理; 3. 状态监控与断点支持; 后续就要进入数据处理  pipeline
+        Async Insert documents with checkpoint support
         Args:
             input: Single document string or list of document strings
             split_by_character: if split_by_character is not None, split the string by character, if chunk longer than
@@ -1174,12 +1174,9 @@ class LightRAG:
         # Generate track_id if not provided
         if track_id is None:
             track_id = generate_track_id("insert")
-
-        await self.apipeline_enqueue_documents(input, ids, file_paths, track_id)
-        await self.apipeline_process_enqueue_documents(
-            split_by_character, split_by_character_only
-        )
-
+        
+        await self.apipeline_enqueue_documents(input, ids, file_paths, track_id) # 数据处理 pipeline 
+        await self.apipeline_process_enqueue_documents(split_by_character, split_by_character_only)
         return track_id
 
     # TODO: deprecated, use insert instead
@@ -1631,7 +1628,7 @@ class LightRAG:
         async with pipeline_status_lock:
             # Ensure only one worker is processing documents
             if not pipeline_status.get("busy", False):
-                processing_docs, failed_docs, pending_docs = await asyncio.gather(
+                processing_docs, failed_docs, pending_docs = await asyncio.gather( # 方法首先获取所有处于 PENDING、FAILED 和 PROCESSING 状态的文档
                     self.doc_status.get_docs_by_status(DocStatus.PROCESSING),
                     self.doc_status.get_docs_by_status(DocStatus.FAILED),
                     self.doc_status.get_docs_by_status(DocStatus.PENDING),
@@ -1695,8 +1692,8 @@ class LightRAG:
                     pipeline_status["history_messages"].append(log_message)
                     break
 
-                # Validate document data consistency and fix any issues as part of the pipeline
-                to_process_docs = await self._validate_and_fix_document_consistency(
+                # Validate document data consistency and fix any issues as part of the pipeline  # 这个方法用于验证和修复文档数据一致性，确保待处理的文档都有对应的内容数据
+                to_process_docs = await self._validate_and_fix_document_consistency( 
                     to_process_docs, pipeline_status, pipeline_status_lock
                 )
 
@@ -1738,7 +1735,7 @@ class LightRAG:
                 # Create a counter to track the number of processed files
                 processed_count = 0
                 # Create a semaphore to limit the number of concurrent file processing
-                semaphore = asyncio.Semaphore(self.max_parallel_insert)
+                semaphore = asyncio.Semaphore(self.max_parallel_insert) # 使用信号量控制并发处理的文档数量，防止系统过载
 
                 async def process_document(
                     doc_id: str,
@@ -1886,7 +1883,7 @@ class LightRAG:
                             # First stage tasks (parallel execution)
                             first_stage_tasks = [
                                 doc_status_task,
-                                chunks_vdb_task,
+                                chunks_vdb_task, # 将文本块存储到向量数据库 chunks_vdb
                                 text_chunks_task,
                             ]
                             entity_relation_task = None
@@ -2112,7 +2109,7 @@ class LightRAG:
 
                 # Wait for all document processing to complete
                 try:
-                    await asyncio.gather(*doc_tasks)
+                    await asyncio.gather(*doc_tasks) # ============
                 except PipelineCancelledException:
                     # Cancel all remaining tasks
                     for task in doc_tasks:

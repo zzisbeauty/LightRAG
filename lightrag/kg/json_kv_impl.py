@@ -174,7 +174,7 @@ class JsonKVStorage(BaseKVStorage):
                 v["_id"] = k
 
             self._data.update(data)
-            await set_all_update_flags(self.namespace, workspace=self.workspace)
+            await set_all_update_flags(self.namespace, workspace=self.workspace)  # 是将完整的文档内容存储到持久化存储中
 
     async def delete(self, ids: list[str]) -> None:
         """Delete specific records from storage by their IDs
